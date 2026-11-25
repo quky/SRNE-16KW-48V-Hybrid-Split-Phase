@@ -1,0 +1,36 @@
+﻿# ESPHome secrets and credentials
+secrets.yaml
+**/secrets.yaml
+*.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+# ESPHome build and cache
+.esphome/
+**/.esphome/
+.pio/
+**/.pio/
+__pycache__/
+*.pyc
+
+# Local configuration
+*.local.yaml
+*.local.yml
+*.local.json
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Official manufacturer PDFs - local reference only
+documentation/official/*.pdf
