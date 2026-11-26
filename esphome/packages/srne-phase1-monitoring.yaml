@@ -1,0 +1,834 @@
+# SRNE-04C: approved Phase 1 only. Official protocol V2.04 pp3-4,8-11,14.
+# 28 direct + 5 calculated + 3 diagnostics (uptime stays in bench YAML).
+# Internal raw block readers are not extra HA entities. No writes/custom PDUs.
+# Every reader refuses previous-range reuse; no gaps, held words, or aggregation.
+# Publish a complete validated sweep, never a mixture of partial generations.
+substitutions:
+  srne_phase1_poll_interval: 10s
+  # Application completion guard; does NOT alter existing Modbus send_wait_time.
+  # Initial bench policy, not an SRNE timing guarantee; review after adapter tests.
+  srne_phase1_response_deadline_ms: "1000"
+
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - script.execute: srne_phase1_invalidate
+
+globals:
+  - id: srne_phase1_words
+    type: "std::array<uint16_t, 32>"
+    restore_value: false
+    # The default GlobalsComponent constructor zero-initializes staging storage.
+  - id: srne_phase1_mask
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_phase1_scan_active
+    type: "bool"
+    restore_value: false
+    initial_value: 'false'
+  - id: srne_phase1_scan_started
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_phase1_awaiting
+    type: "bool"
+    restore_value: false
+    initial_value: 'false'
+  - id: srne_phase1_pending_address
+    type: "uint16_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_phase1_sent_at
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_phase1_have_scan
+    type: "bool"
+    restore_value: false
+    initial_value: 'false'
+  - id: srne_phase1_last_scan
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+
+modbus_controller:
+  - id: srne_phase1_controller
+    modbus_id: modbus1
+    address: 0x01
+    update_interval: ${srne_phase1_poll_interval}
+    on_command_sent:
+      then:
+        - lambda: |-
+            // A pending prior command at the next transmission had no accepted reply.
+            // Includes retries, exceptions and malformed responses; no optimistic online flag.
+            if (id(srne_phase1_awaiting)) id(srne_phase1_invalidate).execute();
+            if (function_code != 0x03) {
+              id(srne_phase1_invalidate).execute();
+              return;
+            }
+            // All isolated HOLDING readers have the same type; 0100 is first in address order.
+            // This marks a new generation. A failed group poisons this sweep until next 0100.
+            if (address == 0x0100) {
+              id(srne_phase1_mask) = 0;
+              id(srne_phase1_scan_active) = true;
+              id(srne_phase1_scan_started) = millis();
+            }
+            id(srne_phase1_pending_address) = address;
+            id(srne_phase1_awaiting) = true;
+            id(srne_phase1_sent_at) = millis();
+    on_offline:
+      then:
+        - script.execute: srne_phase1_invalidate
+
+interval:
+  - interval: 100ms
+    then:
+      - lambda: |-
+          const uint32_t now = millis();
+          const uint32_t fresh_ms = 3UL * id(srne_phase1_controller).get_update_interval();
+          if ((id(srne_phase1_awaiting) &&
+               uint32_t(now - id(srne_phase1_sent_at)) > ${srne_phase1_response_deadline_ms}) ||
+              (id(srne_phase1_scan_active) && uint32_t(now - id(srne_phase1_scan_started)) > fresh_ms) ||
+              (id(srne_phase1_have_scan) && uint32_t(now - id(srne_phase1_last_scan)) > fresh_ms)) {
+            id(srne_phase1_invalidate).execute();
+          }
+
+script:
+  # Fault missing_state is propagated by the installed binary-sensor API.
+  - id: srne_phase1_invalidate
+    mode: single
+    then:
+      - lambda: |-
+          id(srne_phase1_scan_active) = false;
+          id(srne_phase1_mask) = 0;
+          id(srne_phase1_awaiting) = false;
+          id(srne_phase1_have_scan) = false;
+          id(srne_modbus_communication_health).publish_state(false);
+          id(srne_fault_status).invalidate_state();
+          // ESPHome text sensors have no invalidate_state(); use an explicit marker.
+          id(srne_operating_mode).publish_state("Unavailable");
+          id(srne_pv1_voltage).publish_state(NAN);
+          id(srne_pv1_current).publish_state(NAN);
+          id(srne_pv1_power).publish_state(NAN);
+          id(srne_pv2_voltage).publish_state(NAN);
+          id(srne_pv2_current).publish_state(NAN);
+          id(srne_pv2_power).publish_state(NAN);
+          id(srne_pv_total_power).publish_state(NAN);
+          id(srne_battery_voltage).publish_state(NAN);
+          id(srne_battery_current).publish_state(NAN);
+          id(srne_battery_soc).publish_state(NAN);
+          id(srne_battery_temperature).publish_state(NAN);
+          id(srne_battery_net_power).publish_state(NAN);
+          id(srne_battery_charging_power).publish_state(NAN);
+          id(srne_battery_discharging_power).publish_state(NAN);
+          id(srne_grid_l1_voltage).publish_state(NAN);
+          id(srne_grid_l1_current).publish_state(NAN);
+          id(srne_grid_l2_voltage).publish_state(NAN);
+          id(srne_grid_l2_current).publish_state(NAN);
+          id(srne_grid_frequency).publish_state(NAN);
+          id(srne_output_l1_voltage).publish_state(NAN);
+          id(srne_output_l1_current).publish_state(NAN);
+          id(srne_output_l1_power).publish_state(NAN);
+          id(srne_output_l2_voltage).publish_state(NAN);
+          id(srne_output_l2_current).publish_state(NAN);
+          id(srne_output_l2_power).publish_state(NAN);
+          id(srne_output_total_power).publish_state(NAN);
+          id(srne_output_frequency).publish_state(NAN);
+          id(srne_solar_energy_daily).publish_state(NAN);
+          id(srne_load_energy_daily).publish_state(NAN);
+          id(srne_battery_charge_energy_daily).publish_state(NAN);
+          id(srne_battery_discharge_energy_daily).publish_state(NAN);
+          id(srne_inverter_temperature).publish_state(NAN);
+
+  - id: srne_phase1_accept_group
+    mode: single
+    parameters:
+      group_index: int
+      expected_address: int
+      word_count: int
+      cache_offset: int
+      payload: uint8_t[]
+    then:
+      - lambda: |-
+          // Only called by a normal FC03 response handler after the Modbus hub's
+          // CRC/address/function checks. Reject short/oversized data before any indexing.
+          if (!id(srne_phase1_awaiting) ||
+              id(srne_phase1_pending_address) != expected_address ||
+              group_index < 0 || group_index >= 16 || word_count < 1 || word_count > 32 ||
+              cache_offset < 0 || cache_offset + word_count > 32 ||
+              payload.size() != size_t(word_count * 2)) {
+            id(srne_phase1_invalidate).execute();
+            return;
+          }
+          id(srne_phase1_awaiting) = false;
+          if (!id(srne_phase1_scan_active)) return;  // A prior failed group poisoned this sweep.
+          const uint32_t fresh_ms = 3UL * id(srne_phase1_controller).get_update_interval();
+          if (uint32_t(millis() - id(srne_phase1_scan_started)) > fresh_ms) {
+            id(srne_phase1_invalidate).execute();
+            return;
+          }
+          for (int i = 0; i < word_count; i++) {
+            id(srne_phase1_words)[cache_offset + i] =
+                (uint16_t(payload[2 * i]) << 8) | uint16_t(payload[2 * i + 1]);
+          }
+          id(srne_phase1_mask) |= (uint32_t(1) << group_index);
+          if (id(srne_phase1_mask) == 0xFFFFUL) id(srne_phase1_publish_scan).execute();
+
+  - id: srne_phase1_publish_scan
+    mode: single
+    then:
+      - lambda: |-
+          const uint32_t now = millis();
+          const uint32_t fresh_ms = 3UL * id(srne_phase1_controller).get_update_interval();
+          if (!id(srne_phase1_scan_active) || id(srne_phase1_mask) != 0xFFFFUL ||
+              id(srne_phase1_awaiting) || uint32_t(now - id(srne_phase1_scan_started)) > fresh_ms) {
+            id(srne_phase1_invalidate).execute();
+            return;
+          }
+          // Match approved U_WORD/S_WORD exactly; never reinterpret as IEEE FP32.
+          const auto u16 = [](uint16_t raw) -> float { return float(raw); };
+          const auto s16 = [](uint16_t raw) -> float {
+            return float(raw < 0x8000U ? int32_t(raw) : int32_t(raw) - 65536);
+          };
+          // P p9 0x0107: U_WORD x 0.1 V.
+          const float v_srne_pv1_voltage = u16(id(srne_phase1_words)[4]) * 0.1f;
+          // P p9 0x0108: U_WORD x 0.1 A.
+          const float v_srne_pv1_current = u16(id(srne_phase1_words)[5]) * 0.1f;
+          // P p9 0x0109: U_WORD x 1 W.
+          const float v_srne_pv1_power = u16(id(srne_phase1_words)[6]) * 1.0f;
+          // P p9 0x010F: U_WORD x 0.1 V.
+          const float v_srne_pv2_voltage = u16(id(srne_phase1_words)[7]) * 0.1f;
+          // P p9 0x0110: U_WORD x 0.1 A.
+          const float v_srne_pv2_current = u16(id(srne_phase1_words)[8]) * 0.1f;
+          // P p9 0x0111: U_WORD x 1 W.
+          const float v_srne_pv2_power = u16(id(srne_phase1_words)[9]) * 1.0f;
+          // P p9 0x0101: U_WORD x 0.1 V.
+          const float v_srne_battery_voltage = u16(id(srne_phase1_words)[1]) * 0.1f;
+          // P p9 0x0102: S_WORD x 0.1 A.
+          const float v_srne_battery_current = s16(id(srne_phase1_words)[2]) * 0.1f;
+          // P p9 0x0100: U_WORD x 1 %.
+          const float v_srne_battery_soc = u16(id(srne_phase1_words)[0]) * 1.0f;
+          // P p9 0x0103: S_WORD x 0.1 C.
+          const float v_srne_battery_temperature = s16(id(srne_phase1_words)[3]) * 0.1f;
+          // P p10 0x0213: U_WORD x 0.1 V.
+          const float v_srne_grid_l1_voltage = u16(id(srne_phase1_words)[15]) * 0.1f;
+          // P p10 0x0214: U_WORD x 0.1 A.
+          const float v_srne_grid_l1_current = u16(id(srne_phase1_words)[16]) * 0.1f;
+          // P p10 0x022A: U_WORD x 0.1 V.
+          const float v_srne_grid_l2_voltage = u16(id(srne_phase1_words)[23]) * 0.1f;
+          // P p10 0x0238: U_WORD x 0.1 A.
+          const float v_srne_grid_l2_current = u16(id(srne_phase1_words)[27]) * 0.1f;
+          // P p10 0x0215: U_WORD x 0.01 Hz.
+          const float v_srne_grid_frequency = u16(id(srne_phase1_words)[17]) * 0.01f;
+          // P p10 0x0216: U_WORD x 0.1 V.
+          const float v_srne_output_l1_voltage = u16(id(srne_phase1_words)[18]) * 0.1f;
+          // P p10 0x0219: U_WORD x 0.1 A.
+          const float v_srne_output_l1_current = u16(id(srne_phase1_words)[20]) * 0.1f;
+          // P p10 0x021B: S_WORD x 1 W.
+          const float v_srne_output_l1_power = s16(id(srne_phase1_words)[21]) * 1.0f;
+          // P p10 0x022C: U_WORD x 0.1 V.
+          const float v_srne_output_l2_voltage = u16(id(srne_phase1_words)[24]) * 0.1f;
+          // P p10 0x0230: U_WORD x 0.1 A.
+          const float v_srne_output_l2_current = u16(id(srne_phase1_words)[25]) * 0.1f;
+          // P p10 0x0232: S_WORD x 1 W.
+          const float v_srne_output_l2_power = s16(id(srne_phase1_words)[26]) * 1.0f;
+          // P p10 0x0218: U_WORD x 0.01 Hz.
+          const float v_srne_output_frequency = u16(id(srne_phase1_words)[19]) * 0.01f;
+          // P p14 0xF02F: U_WORD x 0.1 kWh.
+          const float v_srne_solar_energy_daily = u16(id(srne_phase1_words)[28]) * 0.1f;
+          // P p14 0xF030: U_WORD x 0.1 kWh.
+          const float v_srne_load_energy_daily = u16(id(srne_phase1_words)[29]) * 0.1f;
+          // P p14 0xF04D: U_WORD x 0.1 kWh.
+          const float v_srne_battery_charge_energy_daily = u16(id(srne_phase1_words)[30]) * 0.1f;
+          // P p14 0xF04E: U_WORD x 0.1 kWh.
+          const float v_srne_battery_discharge_energy_daily = u16(id(srne_phase1_words)[31]) * 0.1f;
+          // P p10 0x0221: S_WORD x 0.1 C.
+          const float v_srne_inverter_temperature = s16(id(srne_phase1_words)[22]) * 0.1f;
+          // Reject a nonsensical SOC instead of clamping it to a plausible number.
+          if (v_srne_battery_soc < 0.0f || v_srne_battery_soc > 100.0f) {
+            id(srne_phase1_invalidate).execute();
+            return;
+          }
+          // All five calculations use ONLY this complete fresh generation, not .state
+          // values left over from a partial poll. Explicit finite checks reject invalid input.
+          const float calc_pv = v_srne_pv1_power + v_srne_pv2_power;
+          const float calc_battery = v_srne_battery_voltage * v_srne_battery_current;
+          const float calc_output = v_srne_output_l1_power + v_srne_output_l2_power;
+          if (!std::isfinite(v_srne_pv1_power) || !std::isfinite(v_srne_pv2_power) ||
+              !std::isfinite(v_srne_battery_voltage) || !std::isfinite(v_srne_battery_current) ||
+              !std::isfinite(v_srne_output_l1_power) || !std::isfinite(v_srne_output_l2_power) ||
+              !std::isfinite(calc_pv) || !std::isfinite(calc_battery) || !std::isfinite(calc_output)) {
+            id(srne_phase1_invalidate).execute();
+            return;
+          }
+          id(srne_pv1_voltage).publish_state(v_srne_pv1_voltage);
+          id(srne_pv1_current).publish_state(v_srne_pv1_current);
+          id(srne_pv1_power).publish_state(v_srne_pv1_power);
+          id(srne_pv2_voltage).publish_state(v_srne_pv2_voltage);
+          id(srne_pv2_current).publish_state(v_srne_pv2_current);
+          id(srne_pv2_power).publish_state(v_srne_pv2_power);
+          id(srne_battery_voltage).publish_state(v_srne_battery_voltage);
+          id(srne_battery_current).publish_state(v_srne_battery_current);
+          id(srne_battery_soc).publish_state(v_srne_battery_soc);
+          id(srne_battery_temperature).publish_state(v_srne_battery_temperature);
+          id(srne_grid_l1_voltage).publish_state(v_srne_grid_l1_voltage);
+          id(srne_grid_l1_current).publish_state(v_srne_grid_l1_current);
+          id(srne_grid_l2_voltage).publish_state(v_srne_grid_l2_voltage);
+          id(srne_grid_l2_current).publish_state(v_srne_grid_l2_current);
+          id(srne_grid_frequency).publish_state(v_srne_grid_frequency);
+          id(srne_output_l1_voltage).publish_state(v_srne_output_l1_voltage);
+          id(srne_output_l1_current).publish_state(v_srne_output_l1_current);
+          id(srne_output_l1_power).publish_state(v_srne_output_l1_power);
+          id(srne_output_l2_voltage).publish_state(v_srne_output_l2_voltage);
+          id(srne_output_l2_current).publish_state(v_srne_output_l2_current);
+          id(srne_output_l2_power).publish_state(v_srne_output_l2_power);
+          id(srne_output_frequency).publish_state(v_srne_output_frequency);
+          id(srne_solar_energy_daily).publish_state(v_srne_solar_energy_daily);
+          id(srne_load_energy_daily).publish_state(v_srne_load_energy_daily);
+          id(srne_battery_charge_energy_daily).publish_state(v_srne_battery_charge_energy_daily);
+          id(srne_battery_discharge_energy_daily).publish_state(v_srne_battery_discharge_energy_daily);
+          id(srne_inverter_temperature).publish_state(v_srne_inverter_temperature);
+          id(srne_pv_total_power).publish_state(calc_pv);
+          // Battery sign: positive discharge, negative charging. No AC/DC substitution.
+          id(srne_battery_net_power).publish_state(calc_battery);
+          id(srne_battery_charging_power).publish_state(calc_battery < 0.0f ? -calc_battery : 0.0f);
+          id(srne_battery_discharging_power).publish_state(calc_battery > 0.0f ? calc_battery : 0.0f);
+          // LOAD/UPS output only, NOT whole-home consumption. Preserve negative circulation.
+          id(srne_output_total_power).publish_state(calc_output);
+          // P p10: split-phase current-state enum, not the generic 0-10 or priority settings.
+          const uint16_t mode = id(srne_phase1_words)[14];
+          switch (mode) {
+            case 0: id(srne_operating_mode).publish_state("Initialization"); break;
+            case 1: id(srne_operating_mode).publish_state("Standby"); break;
+            case 2: id(srne_operating_mode).publish_state("Utility operation"); break;
+            case 3: id(srne_operating_mode).publish_state("Inverter operation"); break;
+            default: id(srne_operating_mode).publish_state("Unknown (" + std::to_string(mode) + ")"); break;
+          }
+          // P p9: four independent unsigned codes; only zero/nonzero, no label/radix guesses.
+          bool fault = false;
+          for (int i = 10; i < 14; i++) fault = fault || (id(srne_phase1_words)[i] != 0);
+          id(srne_fault_status).publish_state(fault);
+          // Expire from the OLDEST request in this sweep, not its completion time.
+          id(srne_phase1_last_scan) = id(srne_phase1_scan_started);
+          id(srne_phase1_have_scan) = true;
+          id(srne_phase1_scan_active) = false;
+          id(srne_modbus_communication_health).publish_state(true);
+
+# Numeric entities are event-driven; only a complete validated sweep publishes.
+# Raw wire decoding is centralized above to reject short frames before indexing.
+sensor:
+  - platform: template
+    id: srne_pv1_voltage
+    name: "PV1 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_pv1_current
+    name: "PV1 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_pv1_power
+    name: "PV1 Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: never
+  - platform: template
+    id: srne_pv2_voltage
+    name: "PV2 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_pv2_current
+    name: "PV2 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_pv2_power
+    name: "PV2 Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: never
+  - platform: template
+    id: srne_pv_total_power
+    name: "Total PV Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_battery_voltage
+    name: "Battery Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_battery_current
+    name: "Battery Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_battery_soc
+    name: "Battery SOC"
+    unit_of_measurement: "%"
+    device_class: battery
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: never
+  - platform: template
+    id: srne_battery_temperature
+    name: "Battery Temperature"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_battery_net_power
+    name: "Battery Net Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
+  - platform: template
+    id: srne_battery_charging_power
+    name: "Battery Charging Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
+  - platform: template
+    id: srne_battery_discharging_power
+    name: "Battery Discharging Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
+  - platform: template
+    id: srne_grid_l1_voltage
+    name: "Grid L1 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_grid_l1_current
+    name: "Grid L1 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_grid_l2_voltage
+    name: "Grid L2 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_grid_l2_current
+    name: "Grid L2 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_grid_frequency
+    name: "Grid Frequency"
+    unit_of_measurement: "Hz"
+    device_class: frequency
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
+  - platform: template
+    id: srne_output_l1_voltage
+    name: "Output L1 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_output_l1_current
+    name: "Output L1 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_output_l1_power
+    name: "Output L1 Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: never
+    # LOAD/UPS output only; not whole-home consumption.
+  - platform: template
+    id: srne_output_l2_voltage
+    name: "Output L2 Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_output_l2_current
+    name: "Output L2 Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+  - platform: template
+    id: srne_output_l2_power
+    name: "Output L2 Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: never
+    # LOAD/UPS output only; not whole-home consumption.
+  - platform: template
+    id: srne_output_total_power
+    name: "Total Output Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+    # LOAD/UPS output only; not whole-home consumption.
+  - platform: template
+    id: srne_output_frequency
+    name: "Output Frequency"
+    unit_of_measurement: "Hz"
+    device_class: frequency
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: never
+  - platform: template
+    id: srne_solar_energy_daily
+    name: "Daily Solar Production"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: ""
+    accuracy_decimals: 1
+    update_interval: never
+    # TODAY kWh only; no total/total_increasing until midnight/reset validation.
+  - platform: template
+    id: srne_load_energy_daily
+    name: "Daily Load Consumption"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: ""
+    accuracy_decimals: 1
+    update_interval: never
+    # TODAY kWh only; no total/total_increasing until midnight/reset validation.
+  - platform: template
+    id: srne_battery_charge_energy_daily
+    name: "Daily Battery Charge Energy"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: ""
+    accuracy_decimals: 1
+    update_interval: never
+    # TODAY kWh only; no total/total_increasing until midnight/reset validation.
+  - platform: template
+    id: srne_battery_discharge_energy_daily
+    name: "Daily Battery Discharge Energy"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    state_class: ""
+    accuracy_decimals: 1
+    update_interval: never
+    # TODAY kWh only; no total/total_increasing until midnight/reset validation.
+  - platform: template
+    id: srne_inverter_temperature
+    name: "Inverter Temperature (Heatsink B)"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    update_interval: never
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: template
+    id: srne_fault_status
+    name: "Fault Status"
+    device_class: problem
+    entity_category: diagnostic
+  - platform: template
+    id: srne_modbus_communication_health
+    name: "Modbus Communication Health"
+    device_class: connectivity
+    entity_category: diagnostic
+
+text_sensor:
+  - platform: template
+    id: srne_operating_mode
+    name: "Operating Mode (Current Operating State)"
+    entity_category: diagnostic
+    update_interval: never
+
+  # ESPHome 2026.11.1 internal FC03 RAW readers; all starts are isolated.
+  # response_size is BYTES; RAW words = (response_size + 1) / 2.
+  # Apply reuse_previous_range: false on EVERY reader (also the following one).
+  # Copy the full callback span into an owning vector at the script boundary.
+  # No scalar value_type: the shared handler implements the approved U_WORD/S_WORD.
+  # Single words: high byte first; no word swaps. Fault words are independent.
+  # R01: 0x0100-0x0103, 4 word(s), cache[0:4].
+  - platform: modbus_controller
+    id: srne_phase1_reader_01
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0100
+    response_size: 8
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(0, 0x0100, 4, 0, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R02: 0x0107-0x0109, 3 word(s), cache[4:7].
+  - platform: modbus_controller
+    id: srne_phase1_reader_02
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0107
+    response_size: 6
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(1, 0x0107, 3, 4, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R03: 0x010F-0x0111, 3 word(s), cache[7:10].
+  - platform: modbus_controller
+    id: srne_phase1_reader_03
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x010F
+    response_size: 6
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(2, 0x010F, 3, 7, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R04: 0x0204-0x0207, 4 word(s), cache[10:14].
+  - platform: modbus_controller
+    id: srne_phase1_reader_04
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0204
+    response_size: 8
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(3, 0x0204, 4, 10, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R05: 0x0210-0x0210, 1 word(s), cache[14:15].
+  - platform: modbus_controller
+    id: srne_phase1_reader_05
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0210
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(4, 0x0210, 1, 14, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R06: 0x0213-0x0216, 4 word(s), cache[15:19].
+  - platform: modbus_controller
+    id: srne_phase1_reader_06
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0213
+    response_size: 8
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(5, 0x0213, 4, 15, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R07: 0x0218-0x0219, 2 word(s), cache[19:21].
+  - platform: modbus_controller
+    id: srne_phase1_reader_07
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0218
+    response_size: 4
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(6, 0x0218, 2, 19, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R08: 0x021B-0x021B, 1 word(s), cache[21:22].
+  - platform: modbus_controller
+    id: srne_phase1_reader_08
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x021B
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(7, 0x021B, 1, 21, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R09: 0x0221-0x0221, 1 word(s), cache[22:23].
+  - platform: modbus_controller
+    id: srne_phase1_reader_09
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0221
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(8, 0x0221, 1, 22, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R10: 0x022A-0x022A, 1 word(s), cache[23:24].
+  - platform: modbus_controller
+    id: srne_phase1_reader_10
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x022A
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(9, 0x022A, 1, 23, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R11: 0x022C-0x022C, 1 word(s), cache[24:25].
+  - platform: modbus_controller
+    id: srne_phase1_reader_11
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x022C
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(10, 0x022C, 1, 24, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R12: 0x0230-0x0230, 1 word(s), cache[25:26].
+  - platform: modbus_controller
+    id: srne_phase1_reader_12
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0230
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(11, 0x0230, 1, 25, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R13: 0x0232-0x0232, 1 word(s), cache[26:27].
+  - platform: modbus_controller
+    id: srne_phase1_reader_13
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0232
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(12, 0x0232, 1, 26, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R14: 0x0238-0x0238, 1 word(s), cache[27:28].
+  - platform: modbus_controller
+    id: srne_phase1_reader_14
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0x0238
+    response_size: 2
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(13, 0x0238, 1, 27, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R15: 0xF02F-0xF030, 2 word(s), cache[28:30].
+  - platform: modbus_controller
+    id: srne_phase1_reader_15
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0xF02F
+    response_size: 4
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(14, 0xF02F, 2, 28, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};
+
+  # R16: 0xF04D-0xF04E, 2 word(s), cache[30:32].
+  - platform: modbus_controller
+    id: srne_phase1_reader_16
+    modbus_controller_id: srne_phase1_controller
+    internal: true
+    register_type: holding
+    address: 0xF04D
+    response_size: 4
+    raw_encode: HEXBYTES
+    reuse_previous_range: false
+    lambda: |-
+      id(srne_phase1_accept_group).execute(15, 0xF04D, 2, 30, std::vector<uint8_t>(data.begin(), data.end()));
+      return std::string{};

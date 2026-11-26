@@ -1,0 +1,1384 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_status": "SYNTHETIC_OFFLINE_FIXTURE_NOT_PHYSICAL_INVERTER_DATA",
+  "summary": {
+    "total_public_entities": 73,
+    "deterministic_entities": 71,
+    "runtime_dependent_entities": 2,
+    "phase1_public_entities": 36,
+    "phase2_public_entities": 37,
+    "scenario_count": 5
+  },
+  "entity_catalog": [
+    {
+      "entity_id": "srne_battery_soc",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0100"
+      ],
+      "unit": "%",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0101"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0102"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_temperature",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0103"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv1_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R02",
+      "source_registers": [
+        "0x0107"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv1_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R02",
+      "source_registers": [
+        "0x0108"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv1_power",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R02",
+      "source_registers": [
+        "0x0109"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv2_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R03",
+      "source_registers": [
+        "0x010F"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv2_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R03",
+      "source_registers": [
+        "0x0110"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv2_power",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R03",
+      "source_registers": [
+        "0x0111"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_fault_status",
+      "tier": "phase1",
+      "platform": "binary_sensor",
+      "source_group": "P1-R04",
+      "source_registers": [
+        "0x0204",
+        "0x0205",
+        "0x0206",
+        "0x0207"
+      ],
+      "unit": null,
+      "formula_or_encoding": "any(u16 != 0)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_operating_mode",
+      "tier": "phase1",
+      "platform": "text_sensor",
+      "source_group": "P1-R05",
+      "source_registers": [
+        "0x0210"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_split_phase",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_l1_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R06",
+      "source_registers": [
+        "0x0213"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_l1_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R06",
+      "source_registers": [
+        "0x0214"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_frequency",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R06",
+      "source_registers": [
+        "0x0215"
+      ],
+      "unit": "Hz",
+      "formula_or_encoding": "u16 * 0.01",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l1_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R06",
+      "source_registers": [
+        "0x0216"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_frequency",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R07",
+      "source_registers": [
+        "0x0218"
+      ],
+      "unit": "Hz",
+      "formula_or_encoding": "u16 * 0.01",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l1_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R07",
+      "source_registers": [
+        "0x0219"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l1_power",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R08",
+      "source_registers": [
+        "0x021B"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "s16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_inverter_temperature",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R09",
+      "source_registers": [
+        "0x0221"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_l2_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R10",
+      "source_registers": [
+        "0x022A"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l2_voltage",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R11",
+      "source_registers": [
+        "0x022C"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l2_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R12",
+      "source_registers": [
+        "0x0230"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_l2_power",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R13",
+      "source_registers": [
+        "0x0232"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "s16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_l2_current",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R14",
+      "source_registers": [
+        "0x0238"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_solar_energy_daily",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R15",
+      "source_registers": [
+        "0xF02F"
+      ],
+      "unit": "kWh",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_load_energy_daily",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R15",
+      "source_registers": [
+        "0xF030"
+      ],
+      "unit": "kWh",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_charge_energy_daily",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R16",
+      "source_registers": [
+        "0xF04D"
+      ],
+      "unit": "kWh",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_discharge_energy_daily",
+      "tier": "phase1",
+      "platform": "sensor",
+      "source_group": "P1-R16",
+      "source_registers": [
+        "0xF04E"
+      ],
+      "unit": "kWh",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv_total_power",
+      "tier": "phase1_calculated",
+      "platform": "sensor",
+      "source_group": "P1-R02+P1-R03",
+      "source_registers": [
+        "0x0109",
+        "0x0111"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "PV1_W + PV2_W",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_net_power",
+      "tier": "phase1_calculated",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0101",
+        "0x0102"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "(0x0101*0.1) * (s16(0x0102)*0.1)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_charging_power",
+      "tier": "phase1_calculated",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0101",
+        "0x0102"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "max(-net_power, 0)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_discharging_power",
+      "tier": "phase1_calculated",
+      "platform": "sensor",
+      "source_group": "P1-R01",
+      "source_registers": [
+        "0x0101",
+        "0x0102"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "max(net_power, 0)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_output_total_power",
+      "tier": "phase1_calculated",
+      "platform": "sensor",
+      "source_group": "P1-R08+P1-R13",
+      "source_registers": [
+        "0x021B",
+        "0x0232"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "s16(0x021B) + s16(0x0232)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_rated_capacity",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D01",
+      "source_registers": [
+        "0x0105"
+      ],
+      "unit": "Ah",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_remaining_capacity",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D01",
+      "source_registers": [
+        "0x0106"
+      ],
+      "unit": "Ah",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_charging_status",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-D02",
+      "source_registers": [
+        "0x010B"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_charging_status",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_cycle_count",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D02",
+      "source_registers": [
+        "0x010C"
+      ],
+      "unit": "cycles",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_total_charging_power",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D03",
+      "source_registers": [
+        "0x010E"
+      ],
+      "unit": "W",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_voltage",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D04",
+      "source_registers": [
+        "0x0112"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_temperature",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D05",
+      "source_registers": [
+        "0x0114"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_charge_voltage_limit",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D05",
+      "source_registers": [
+        "0x0115"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_charge_current_limit",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D05",
+      "source_registers": [
+        "0x0116"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_discharge_current_limit",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D05",
+      "source_registers": [
+        "0x0117"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_grid_connection_countdown",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D06",
+      "source_registers": [
+        "0x020F"
+      ],
+      "unit": "s",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_password_protection_status",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-D07",
+      "source_registers": [
+        "0x0211"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_password_status",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_total_dc_bus_voltage",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D07",
+      "source_registers": [
+        "0x0212"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_utility_charging_current",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D08",
+      "source_registers": [
+        "0x021E"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_heatsink_a_temperature",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D09",
+      "source_registers": [
+        "0x0220"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_heatsink_c_temperature",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D10",
+      "source_registers": [
+        "0x0222"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_ambient_temperature",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D10",
+      "source_registers": [
+        "0x0223"
+      ],
+      "unit": "°C",
+      "formula_or_encoding": "s16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_pv_charging_current",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D10",
+      "source_registers": [
+        "0x0224"
+      ],
+      "unit": "A",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_positive_dc_bus_voltage",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D11",
+      "source_registers": [
+        "0x0228"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_negative_dc_bus_voltage",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D11",
+      "source_registers": [
+        "0x0229"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 0.1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_inverter_operating_time_today",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D12",
+      "source_registers": [
+        "0xF03E"
+      ],
+      "unit": "min",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bypass_operating_time_today",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-D12",
+      "source_registers": [
+        "0xF03F"
+      ],
+      "unit": "min",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_product_type",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S01",
+      "source_registers": [
+        "0x000B"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_product_type",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_software_version_app",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S02",
+      "source_registers": [
+        "0x0014"
+      ],
+      "unit": null,
+      "formula_or_encoding": "format V%u.%02u (raw %u)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_hardware_version_control_board",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S03",
+      "source_registers": [
+        "0x0016"
+      ],
+      "unit": null,
+      "formula_or_encoding": "format V%u.%02u (raw %u)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_device_address",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S04",
+      "source_registers": [
+        "0x001A"
+      ],
+      "unit": null,
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_model_code",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S04",
+      "source_registers": [
+        "0x001B"
+      ],
+      "unit": null,
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_protocol_version",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S04",
+      "source_registers": [
+        "0x001C"
+      ],
+      "unit": null,
+      "formula_or_encoding": "format raw %u (0x%04X)",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_software_build_time",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S05",
+      "source_registers": [
+        "0x0021",
+        "0x0022",
+        "0x0023",
+        "0x0024",
+        "0x0025",
+        "0x0026",
+        "0x0027",
+        "0x0028",
+        "0x0029",
+        "0x002A",
+        "0x002B",
+        "0x002C",
+        "0x002D",
+        "0x002E",
+        "0x002F",
+        "0x0030",
+        "0x0031",
+        "0x0032",
+        "0x0033",
+        "0x0034"
+      ],
+      "unit": null,
+      "formula_or_encoding": "lower8_ascii",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_product_serial_number",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S06",
+      "source_registers": [
+        "0x0035",
+        "0x0036",
+        "0x0037",
+        "0x0038",
+        "0x0039",
+        "0x003A",
+        "0x003B",
+        "0x003C",
+        "0x003D",
+        "0x003E",
+        "0x003F",
+        "0x0040",
+        "0x0041",
+        "0x0042",
+        "0x0043",
+        "0x0044",
+        "0x0045",
+        "0x0046",
+        "0x0047",
+        "0x0048"
+      ],
+      "unit": null,
+      "formula_or_encoding": "lower8_ascii",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_battery_rated_voltage",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S07",
+      "source_registers": [
+        "0xE003"
+      ],
+      "unit": "V",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_configured_operating_mode",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S08",
+      "source_registers": [
+        "0xE037"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_configured_mode",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_parallel_operation_mode",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S09",
+      "source_registers": [
+        "0xE201"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_parallel_mode",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_bms_enable_mode",
+      "tier": "phase2",
+      "platform": "text_sensor",
+      "source_group": "P2-S10",
+      "source_registers": [
+        "0xE215"
+      ],
+      "unit": null,
+      "formula_or_encoding": "enum_bms_enable",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_total_operating_days",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S11",
+      "source_registers": [
+        "0xF031"
+      ],
+      "unit": "d",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_cumulative_inverter_operating_time",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S12",
+      "source_registers": [
+        "0xF04A"
+      ],
+      "unit": "h",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_cumulative_bypass_operating_time",
+      "tier": "phase2",
+      "platform": "sensor",
+      "source_group": "P2-S12",
+      "source_registers": [
+        "0xF04B"
+      ],
+      "unit": "h",
+      "formula_or_encoding": "u16 * 1",
+      "determinism": "deterministic"
+    },
+    {
+      "entity_id": "srne_uptime",
+      "tier": "phase1_runtime",
+      "platform": "sensor",
+      "source_group": "local_esphome",
+      "source_registers": [],
+      "unit": "s",
+      "formula_or_encoding": "esphome sensor.uptime (10s)",
+      "determinism": "runtime_dependent"
+    },
+    {
+      "entity_id": "srne_modbus_communication_health",
+      "tier": "phase1_runtime",
+      "platform": "binary_sensor",
+      "source_group": "Phase 1 R01..R16 freshness",
+      "source_registers": [],
+      "unit": null,
+      "formula_or_encoding": "online_within_30s",
+      "determinism": "runtime_dependent"
+    }
+  ],
+  "scenarios": {
+    "S1_solar_charging": {
+      "deterministic_entity_count": 71,
+      "runtime_dependent_entities": {
+        "srne_uptime": {
+          "classification": "runtime_dependent",
+          "expected_state": "monotonically_increasing_seconds",
+          "unit": "s",
+          "source": "esphome sensor.uptime"
+        },
+        "srne_modbus_communication_health": {
+          "classification": "runtime_dependent",
+          "expected_state": true,
+          "unit": null,
+          "source": "true during continuous successful Phase 1 polling (online_within_30s)"
+        }
+      },
+      "entities": {
+        "srne_battery_soc": 74,
+        "srne_battery_voltage": 53.6,
+        "srne_battery_current": -85.0,
+        "srne_battery_temperature": 26.5,
+        "srne_pv1_voltage": 385.0,
+        "srne_pv1_current": 11.2,
+        "srne_pv1_power": 4312,
+        "srne_pv2_voltage": 392.0,
+        "srne_pv2_current": 10.5,
+        "srne_pv2_power": 4116,
+        "srne_fault_status": false,
+        "srne_operating_mode": "Inverter operation",
+        "srne_grid_l1_voltage": 120.5,
+        "srne_grid_l1_current": 0.0,
+        "srne_grid_frequency": 60.0,
+        "srne_output_l1_voltage": 120.1,
+        "srne_output_frequency": 60.0,
+        "srne_output_l1_current": 15.0,
+        "srne_output_l1_power": 1750,
+        "srne_inverter_temperature": 42.5,
+        "srne_grid_l2_voltage": 120.2,
+        "srne_output_l2_voltage": 120.3,
+        "srne_output_l2_current": 14.5,
+        "srne_output_l2_power": 1700,
+        "srne_grid_l2_current": 0.0,
+        "srne_solar_energy_daily": 24.6,
+        "srne_load_energy_daily": 11.4,
+        "srne_battery_charge_energy_daily": 12.8,
+        "srne_battery_discharge_energy_daily": 2.1,
+        "srne_pv_total_power": 8428,
+        "srne_battery_net_power": -4556.0,
+        "srne_battery_charging_power": 4556.0,
+        "srne_battery_discharging_power": 0.0,
+        "srne_output_total_power": 3450,
+        "srne_battery_rated_capacity": 300,
+        "srne_battery_remaining_capacity": 222,
+        "srne_battery_charging_status": "Quick charge",
+        "srne_battery_cycle_count": 142,
+        "srne_total_charging_power": 4560,
+        "srne_bms_voltage": 53.5,
+        "srne_bms_temperature": 25.8,
+        "srne_bms_charge_voltage_limit": 56.0,
+        "srne_bms_charge_current_limit": 150.0,
+        "srne_bms_discharge_current_limit": 200.0,
+        "srne_grid_connection_countdown": 0,
+        "srne_password_protection_status": "User password not entered",
+        "srne_total_dc_bus_voltage": 410.0,
+        "srne_utility_charging_current": 0.0,
+        "srne_heatsink_a_temperature": 41.2,
+        "srne_heatsink_c_temperature": 39.8,
+        "srne_ambient_temperature": 28.4,
+        "srne_pv_charging_current": 85.0,
+        "srne_positive_dc_bus_voltage": 205.2,
+        "srne_negative_dc_bus_voltage": 204.8,
+        "srne_inverter_operating_time_today": 320,
+        "srne_bypass_operating_time_today": 0,
+        "srne_product_type": "Controller-Inverter Integrated Unit",
+        "srne_software_version_app": "V1.25 (raw 125)",
+        "srne_hardware_version_control_board": "V1.10 (raw 110)",
+        "srne_device_address": 1,
+        "srne_model_code": 16000,
+        "srne_protocol_version": "raw 204 (0x00CC)",
+        "srne_software_build_time": "2025-11-15 10:30:00",
+        "srne_product_serial_number": "SYNTH-SPI16K-0001",
+        "srne_battery_rated_voltage": 48,
+        "srne_configured_operating_mode": "Grid-connected mode",
+        "srne_parallel_operation_mode": "Single unit",
+        "srne_bms_enable_mode": "Enable CAN-BMS",
+        "srne_total_operating_days": 185,
+        "srne_cumulative_inverter_operating_time": 2840,
+        "srne_cumulative_bypass_operating_time": 112
+      }
+    },
+    "S2_battery_discharging": {
+      "deterministic_entity_count": 71,
+      "runtime_dependent_entities": {
+        "srne_uptime": {
+          "classification": "runtime_dependent",
+          "expected_state": "monotonically_increasing_seconds",
+          "unit": "s",
+          "source": "esphome sensor.uptime"
+        },
+        "srne_modbus_communication_health": {
+          "classification": "runtime_dependent",
+          "expected_state": true,
+          "unit": null,
+          "source": "true during continuous successful Phase 1 polling (online_within_30s)"
+        }
+      },
+      "entities": {
+        "srne_battery_soc": 52,
+        "srne_battery_voltage": 51.2,
+        "srne_battery_current": 75.0,
+        "srne_battery_temperature": 29.0,
+        "srne_pv1_voltage": 0.0,
+        "srne_pv1_current": 0.0,
+        "srne_pv1_power": 0,
+        "srne_pv2_voltage": 0.0,
+        "srne_pv2_current": 0.0,
+        "srne_pv2_power": 0,
+        "srne_fault_status": false,
+        "srne_operating_mode": "Inverter operation",
+        "srne_grid_l1_voltage": 121.0,
+        "srne_grid_l1_current": 0.0,
+        "srne_grid_frequency": 59.98,
+        "srne_output_l1_voltage": 120.0,
+        "srne_output_frequency": 60.0,
+        "srne_output_l1_current": 15.5,
+        "srne_output_l1_power": 1820,
+        "srne_inverter_temperature": 44.1,
+        "srne_grid_l2_voltage": 120.8,
+        "srne_output_l2_voltage": 120.1,
+        "srne_output_l2_current": 14.0,
+        "srne_output_l2_power": 1650,
+        "srne_grid_l2_current": 0.0,
+        "srne_solar_energy_daily": 31.2,
+        "srne_load_energy_daily": 22.5,
+        "srne_battery_charge_energy_daily": 14.0,
+        "srne_battery_discharge_energy_daily": 8.5,
+        "srne_pv_total_power": 0,
+        "srne_battery_net_power": 3840.0,
+        "srne_battery_charging_power": 0.0,
+        "srne_battery_discharging_power": 3840.0,
+        "srne_output_total_power": 3470,
+        "srne_battery_rated_capacity": 300,
+        "srne_battery_remaining_capacity": 156,
+        "srne_battery_charging_status": "Charge off",
+        "srne_battery_cycle_count": 143,
+        "srne_total_charging_power": 0,
+        "srne_bms_voltage": 51.3,
+        "srne_bms_temperature": 28.5,
+        "srne_bms_charge_voltage_limit": 56.0,
+        "srne_bms_charge_current_limit": 150.0,
+        "srne_bms_discharge_current_limit": 200.0,
+        "srne_grid_connection_countdown": 0,
+        "srne_password_protection_status": "User password not entered",
+        "srne_total_dc_bus_voltage": 395.0,
+        "srne_utility_charging_current": 0.0,
+        "srne_heatsink_a_temperature": 43.0,
+        "srne_heatsink_c_temperature": 40.5,
+        "srne_ambient_temperature": 24.0,
+        "srne_pv_charging_current": 0.0,
+        "srne_positive_dc_bus_voltage": 197.6,
+        "srne_negative_dc_bus_voltage": 197.4,
+        "srne_inverter_operating_time_today": 740,
+        "srne_bypass_operating_time_today": 0,
+        "srne_product_type": "Controller-Inverter Integrated Unit",
+        "srne_software_version_app": "V1.25 (raw 125)",
+        "srne_hardware_version_control_board": "V1.10 (raw 110)",
+        "srne_device_address": 1,
+        "srne_model_code": 16000,
+        "srne_protocol_version": "raw 204 (0x00CC)",
+        "srne_software_build_time": "2025-11-15 10:30:00",
+        "srne_product_serial_number": "SYNTH-SPI16K-0001",
+        "srne_battery_rated_voltage": 48,
+        "srne_configured_operating_mode": "Grid-connected mode",
+        "srne_parallel_operation_mode": "Single unit",
+        "srne_bms_enable_mode": "Enable CAN-BMS",
+        "srne_total_operating_days": 185,
+        "srne_cumulative_inverter_operating_time": 2847,
+        "srne_cumulative_bypass_operating_time": 112
+      }
+    },
+    "S3_utility_zero_solar": {
+      "deterministic_entity_count": 71,
+      "runtime_dependent_entities": {
+        "srne_uptime": {
+          "classification": "runtime_dependent",
+          "expected_state": "monotonically_increasing_seconds",
+          "unit": "s",
+          "source": "esphome sensor.uptime"
+        },
+        "srne_modbus_communication_health": {
+          "classification": "runtime_dependent",
+          "expected_state": true,
+          "unit": null,
+          "source": "true during continuous successful Phase 1 polling (online_within_30s)"
+        }
+      },
+      "entities": {
+        "srne_battery_soc": 35,
+        "srne_battery_voltage": 52.4,
+        "srne_battery_current": -30.0,
+        "srne_battery_temperature": 24.5,
+        "srne_pv1_voltage": 0.0,
+        "srne_pv1_current": 0.0,
+        "srne_pv1_power": 0,
+        "srne_pv2_voltage": 0.0,
+        "srne_pv2_current": 0.0,
+        "srne_pv2_power": 0,
+        "srne_fault_status": false,
+        "srne_operating_mode": "Utility operation",
+        "srne_grid_l1_voltage": 120.4,
+        "srne_grid_l1_current": 20.5,
+        "srne_grid_frequency": 60.01,
+        "srne_output_l1_voltage": 120.3,
+        "srne_output_frequency": 60.01,
+        "srne_output_l1_current": 11.0,
+        "srne_output_l1_power": 1300,
+        "srne_inverter_temperature": 37.5,
+        "srne_grid_l2_voltage": 120.6,
+        "srne_output_l2_voltage": 120.5,
+        "srne_output_l2_current": 9.5,
+        "srne_output_l2_power": 1120,
+        "srne_grid_l2_current": 18.0,
+        "srne_solar_energy_daily": 0.0,
+        "srne_load_energy_daily": 18.0,
+        "srne_battery_charge_energy_daily": 4.5,
+        "srne_battery_discharge_energy_daily": 0.0,
+        "srne_pv_total_power": 0,
+        "srne_battery_net_power": -1572.0,
+        "srne_battery_charging_power": 1572.0,
+        "srne_battery_discharging_power": 0.0,
+        "srne_output_total_power": 2420,
+        "srne_battery_rated_capacity": 300,
+        "srne_battery_remaining_capacity": 105,
+        "srne_battery_charging_status": "Const voltage charge",
+        "srne_battery_cycle_count": 144,
+        "srne_total_charging_power": 1572,
+        "srne_bms_voltage": 52.3,
+        "srne_bms_temperature": 24.0,
+        "srne_bms_charge_voltage_limit": 56.0,
+        "srne_bms_charge_current_limit": 150.0,
+        "srne_bms_discharge_current_limit": 200.0,
+        "srne_grid_connection_countdown": 15,
+        "srne_password_protection_status": "User password entered",
+        "srne_total_dc_bus_voltage": 402.0,
+        "srne_utility_charging_current": 30.0,
+        "srne_heatsink_a_temperature": 36.2,
+        "srne_heatsink_c_temperature": 35.0,
+        "srne_ambient_temperature": 21.5,
+        "srne_pv_charging_current": 0.0,
+        "srne_positive_dc_bus_voltage": 201.0,
+        "srne_negative_dc_bus_voltage": 201.0,
+        "srne_inverter_operating_time_today": 0,
+        "srne_bypass_operating_time_today": 480,
+        "srne_product_type": "Controller-Inverter Integrated Unit",
+        "srne_software_version_app": "V1.25 (raw 125)",
+        "srne_hardware_version_control_board": "V1.10 (raw 110)",
+        "srne_device_address": 1,
+        "srne_model_code": 16000,
+        "srne_protocol_version": "raw 204 (0x00CC)",
+        "srne_software_build_time": "2025-11-15 10:30:00",
+        "srne_product_serial_number": "SYNTH-SPI16K-0001",
+        "srne_battery_rated_voltage": 48,
+        "srne_configured_operating_mode": "Grid-connected mode",
+        "srne_parallel_operation_mode": "Single unit",
+        "srne_bms_enable_mode": "Enable CAN-BMS",
+        "srne_total_operating_days": 186,
+        "srne_cumulative_inverter_operating_time": 2847,
+        "srne_cumulative_bypass_operating_time": 120
+      }
+    },
+    "S4_standby": {
+      "deterministic_entity_count": 71,
+      "runtime_dependent_entities": {
+        "srne_uptime": {
+          "classification": "runtime_dependent",
+          "expected_state": "monotonically_increasing_seconds",
+          "unit": "s",
+          "source": "esphome sensor.uptime"
+        },
+        "srne_modbus_communication_health": {
+          "classification": "runtime_dependent",
+          "expected_state": true,
+          "unit": null,
+          "source": "true during continuous successful Phase 1 polling (online_within_30s)"
+        }
+      },
+      "entities": {
+        "srne_battery_soc": 100,
+        "srne_battery_voltage": 54.0,
+        "srne_battery_current": 0.0,
+        "srne_battery_temperature": 8.5,
+        "srne_pv1_voltage": 120.0,
+        "srne_pv1_current": 0.0,
+        "srne_pv1_power": 0,
+        "srne_pv2_voltage": 118.5,
+        "srne_pv2_current": 0.0,
+        "srne_pv2_power": 0,
+        "srne_fault_status": false,
+        "srne_operating_mode": "Standby",
+        "srne_grid_l1_voltage": 120.0,
+        "srne_grid_l1_current": 0.0,
+        "srne_grid_frequency": 60.0,
+        "srne_output_l1_voltage": 0.0,
+        "srne_output_frequency": 0.0,
+        "srne_output_l1_current": 0.0,
+        "srne_output_l1_power": 0,
+        "srne_inverter_temperature": 5.2,
+        "srne_grid_l2_voltage": 120.0,
+        "srne_output_l2_voltage": 0.0,
+        "srne_output_l2_current": 0.0,
+        "srne_output_l2_power": 0,
+        "srne_grid_l2_current": 0.0,
+        "srne_solar_energy_daily": 0.0,
+        "srne_load_energy_daily": 0.0,
+        "srne_battery_charge_energy_daily": 0.0,
+        "srne_battery_discharge_energy_daily": 0.0,
+        "srne_pv_total_power": 0,
+        "srne_battery_net_power": 0.0,
+        "srne_battery_charging_power": -0.0,
+        "srne_battery_discharging_power": 0.0,
+        "srne_output_total_power": 0,
+        "srne_battery_rated_capacity": 300,
+        "srne_battery_remaining_capacity": 300,
+        "srne_battery_charging_status": "Full",
+        "srne_battery_cycle_count": 144,
+        "srne_total_charging_power": 0,
+        "srne_bms_voltage": 54.0,
+        "srne_bms_temperature": 8.2,
+        "srne_bms_charge_voltage_limit": 56.0,
+        "srne_bms_charge_current_limit": 150.0,
+        "srne_bms_discharge_current_limit": 200.0,
+        "srne_grid_connection_countdown": 60,
+        "srne_password_protection_status": "User password not entered",
+        "srne_total_dc_bus_voltage": 54.0,
+        "srne_utility_charging_current": 0.0,
+        "srne_heatsink_a_temperature": 5.0,
+        "srne_heatsink_c_temperature": 4.8,
+        "srne_ambient_temperature": -2.5,
+        "srne_pv_charging_current": 0.0,
+        "srne_positive_dc_bus_voltage": 27.0,
+        "srne_negative_dc_bus_voltage": 27.0,
+        "srne_inverter_operating_time_today": 0,
+        "srne_bypass_operating_time_today": 0,
+        "srne_product_type": "Controller-Inverter Integrated Unit",
+        "srne_software_version_app": "V1.25 (raw 125)",
+        "srne_hardware_version_control_board": "V1.10 (raw 110)",
+        "srne_device_address": 1,
+        "srne_model_code": 16000,
+        "srne_protocol_version": "raw 204 (0x00CC)",
+        "srne_software_build_time": "2025-11-15 10:30:00",
+        "srne_product_serial_number": "SYNTH-SPI16K-0001",
+        "srne_battery_rated_voltage": 48,
+        "srne_configured_operating_mode": "Grid-connected mode",
+        "srne_parallel_operation_mode": "Single unit",
+        "srne_bms_enable_mode": "Enable CAN-BMS",
+        "srne_total_operating_days": 187,
+        "srne_cumulative_inverter_operating_time": 2847,
+        "srne_cumulative_bypass_operating_time": 120
+      }
+    },
+    "S5_active_fault": {
+      "deterministic_entity_count": 71,
+      "runtime_dependent_entities": {
+        "srne_uptime": {
+          "classification": "runtime_dependent",
+          "expected_state": "monotonically_increasing_seconds",
+          "unit": "s",
+          "source": "esphome sensor.uptime"
+        },
+        "srne_modbus_communication_health": {
+          "classification": "runtime_dependent",
+          "expected_state": true,
+          "unit": null,
+          "source": "true during continuous successful Phase 1 polling (online_within_30s)"
+        }
+      },
+      "entities": {
+        "srne_battery_soc": 18,
+        "srne_battery_voltage": 47.2,
+        "srne_battery_current": 0.0,
+        "srne_battery_temperature": 46.5,
+        "srne_pv1_voltage": 350.0,
+        "srne_pv1_current": 0.0,
+        "srne_pv1_power": 0,
+        "srne_pv2_voltage": 352.0,
+        "srne_pv2_current": 0.0,
+        "srne_pv2_power": 0,
+        "srne_fault_status": true,
+        "srne_operating_mode": "Standby",
+        "srne_grid_l1_voltage": 0.0,
+        "srne_grid_l1_current": 0.0,
+        "srne_grid_frequency": 0.0,
+        "srne_output_l1_voltage": 0.0,
+        "srne_output_frequency": 0.0,
+        "srne_output_l1_current": 0.0,
+        "srne_output_l1_power": 0,
+        "srne_inverter_temperature": 82.1,
+        "srne_grid_l2_voltage": 0.0,
+        "srne_output_l2_voltage": 0.0,
+        "srne_output_l2_current": 0.0,
+        "srne_output_l2_power": 0,
+        "srne_grid_l2_current": 0.0,
+        "srne_solar_energy_daily": 12.1,
+        "srne_load_energy_daily": 15.3,
+        "srne_battery_charge_energy_daily": 5.2,
+        "srne_battery_discharge_energy_daily": 10.4,
+        "srne_pv_total_power": 0,
+        "srne_battery_net_power": 0.0,
+        "srne_battery_charging_power": -0.0,
+        "srne_battery_discharging_power": 0.0,
+        "srne_output_total_power": 0,
+        "srne_battery_rated_capacity": 300,
+        "srne_battery_remaining_capacity": 54,
+        "srne_battery_charging_status": "Charge off",
+        "srne_battery_cycle_count": 145,
+        "srne_total_charging_power": 0,
+        "srne_bms_voltage": 47.2,
+        "srne_bms_temperature": 46.0,
+        "srne_bms_charge_voltage_limit": 56.0,
+        "srne_bms_charge_current_limit": 150.0,
+        "srne_bms_discharge_current_limit": 200.0,
+        "srne_grid_connection_countdown": 0,
+        "srne_password_protection_status": "Manufacturer password entered",
+        "srne_total_dc_bus_voltage": 0.0,
+        "srne_utility_charging_current": 0.0,
+        "srne_heatsink_a_temperature": 78.4,
+        "srne_heatsink_c_temperature": 76.9,
+        "srne_ambient_temperature": 41.0,
+        "srne_pv_charging_current": 0.0,
+        "srne_positive_dc_bus_voltage": 0.0,
+        "srne_negative_dc_bus_voltage": 0.0,
+        "srne_inverter_operating_time_today": 410,
+        "srne_bypass_operating_time_today": 45,
+        "srne_product_type": "Controller-Inverter Integrated Unit",
+        "srne_software_version_app": "V1.25 (raw 125)",
+        "srne_hardware_version_control_board": "V1.10 (raw 110)",
+        "srne_device_address": 1,
+        "srne_model_code": 16000,
+        "srne_protocol_version": "raw 204 (0x00CC)",
+        "srne_software_build_time": "2025-11-15 10:30:00",
+        "srne_product_serial_number": "SYNTH-SPI16K-0001",
+        "srne_battery_rated_voltage": 48,
+        "srne_configured_operating_mode": "Grid-connected mode",
+        "srne_parallel_operation_mode": "Single unit",
+        "srne_bms_enable_mode": "Enable CAN-BMS",
+        "srne_total_operating_days": 187,
+        "srne_cumulative_inverter_operating_time": 2854,
+        "srne_cumulative_bypass_operating_time": 121
+      }
+    }
+  }
+}

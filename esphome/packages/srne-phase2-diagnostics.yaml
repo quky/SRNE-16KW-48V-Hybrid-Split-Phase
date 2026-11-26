@@ -1,0 +1,845 @@
+# SRNE-04G-R1: approved Phase 2 extended diagnostics (37 entities, 24 FC03 groups, 75 words).
+# Uses independent modbus_client.read_holding_registers (ZERO additional modbus_controller instances).
+# Cooperative single-in-flight scheduler yields to Phase 1 and never clears Phase 1's queue.
+# Strictly read-only FC03; zero writable controls, zero held/unsupported registers.
+substitutions:
+  srne_phase2_dynamic_poll_ms: "30000"
+  srne_phase2_slow_mode_poll_ms: "300000"
+  srne_phase2_static_poll_ms: "3600000"
+  srne_phase2_inflight_watchdog_ms: "2000"
+  srne_phase2_static_min_spacing_ms: "2000"
+
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            const uint32_t now = millis();
+            for (int g = 0; g < 24; g++) {
+              id(srne_p2_valid)[g] = false;
+              id(srne_p2_invalid_pub)[g] = false;
+              id(srne_p2_fail_count)[g] = 0;
+              id(srne_p2_exc_fail)[g] = false;
+              id(srne_p2_last_ok_ms)[g] = 0;
+              id(srne_p2_next_due_ms)[g] =
+                  now + (g < 12 ? uint32_t(5500 + g * 750) : uint32_t(15500 + (g - 12) * 5000));
+              id(srne_p2_invalidate_group).execute(g);
+            }
+
+globals:
+  - id: srne_p2_in_flight
+    type: "bool"
+    restore_value: false
+    initial_value: 'false'
+  - id: srne_p2_active_group
+    type: "int"
+    restore_value: false
+    initial_value: '-1'
+  - id: srne_p2_expected_addr
+    type: "uint16_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_p2_expected_count
+    type: "uint16_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_p2_sent_at
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_p2_rr_cursor
+    type: "int"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_p2_last_static_ms
+    type: "uint32_t"
+    restore_value: false
+    initial_value: '0'
+  - id: srne_p2_prev_p1_health
+    type: "bool"
+    restore_value: false
+    initial_value: 'false'
+  - id: srne_p2_next_due_ms
+    type: "std::array<uint32_t, 24>"
+    restore_value: false
+  - id: srne_p2_last_ok_ms
+    type: "std::array<uint32_t, 24>"
+    restore_value: false
+  - id: srne_p2_valid
+    type: "std::array<bool, 24>"
+    restore_value: false
+  - id: srne_p2_invalid_pub
+    type: "std::array<bool, 24>"
+    restore_value: false
+  - id: srne_p2_fail_count
+    type: "std::array<uint8_t, 24>"
+    restore_value: false
+  - id: srne_p2_exc_fail
+    type: "std::array<bool, 24>"
+    restore_value: false
+
+script:
+  - id: srne_p2_invalidate_group
+    mode: single
+    parameters:
+      group_index: int
+    then:
+      - lambda: |-
+          if (group_index < 0 || group_index >= 24) return;
+          id(srne_p2_valid)[group_index] = false;
+          if (id(srne_p2_invalid_pub)[group_index]) return;
+          id(srne_p2_invalid_pub)[group_index] = true;
+          switch (group_index) {
+            case 0:
+              id(srne_battery_rated_capacity).publish_state(NAN);
+              id(srne_battery_remaining_capacity).publish_state(NAN);
+              break;
+            case 1:
+              id(srne_battery_charging_status).publish_state("Unavailable");
+              id(srne_battery_cycle_count).publish_state(NAN);
+              break;
+            case 2:
+              id(srne_total_charging_power).publish_state(NAN);
+              break;
+            case 3:
+              id(srne_bms_voltage).publish_state(NAN);
+              break;
+            case 4:
+              id(srne_bms_temperature).publish_state(NAN);
+              id(srne_bms_charge_voltage_limit).publish_state(NAN);
+              id(srne_bms_charge_current_limit).publish_state(NAN);
+              id(srne_bms_discharge_current_limit).publish_state(NAN);
+              break;
+            case 5:
+              id(srne_grid_connection_countdown).publish_state(NAN);
+              break;
+            case 6:
+              id(srne_password_protection_status).publish_state("Unavailable");
+              id(srne_total_dc_bus_voltage).publish_state(NAN);
+              break;
+            case 7:
+              id(srne_utility_charging_current).publish_state(NAN);
+              break;
+            case 8:
+              id(srne_heatsink_a_temperature).publish_state(NAN);
+              break;
+            case 9:
+              id(srne_heatsink_c_temperature).publish_state(NAN);
+              id(srne_ambient_temperature).publish_state(NAN);
+              id(srne_pv_charging_current).publish_state(NAN);
+              break;
+            case 10:
+              id(srne_positive_dc_bus_voltage).publish_state(NAN);
+              id(srne_negative_dc_bus_voltage).publish_state(NAN);
+              break;
+            case 11:
+              id(srne_inverter_operating_time_today).publish_state(NAN);
+              id(srne_bypass_operating_time_today).publish_state(NAN);
+              break;
+            case 12:
+              id(srne_product_type).publish_state("Unavailable");
+              break;
+            case 13:
+              id(srne_software_version_app).publish_state("Unavailable");
+              break;
+            case 14:
+              id(srne_hardware_version_control_board).publish_state("Unavailable");
+              break;
+            case 15:
+              id(srne_device_address).publish_state(NAN);
+              id(srne_model_code).publish_state(NAN);
+              id(srne_protocol_version).publish_state("Unavailable");
+              break;
+            case 16:
+              id(srne_software_build_time).publish_state("Unavailable");
+              break;
+            case 17:
+              id(srne_product_serial_number).publish_state("Unavailable");
+              break;
+            case 18:
+              id(srne_battery_rated_voltage).publish_state(NAN);
+              break;
+            case 19:
+              id(srne_configured_operating_mode).publish_state("Unavailable");
+              break;
+            case 20:
+              id(srne_parallel_operation_mode).publish_state("Unavailable");
+              break;
+            case 21:
+              id(srne_bms_enable_mode).publish_state("Unavailable");
+              break;
+            case 22:
+              id(srne_total_operating_days).publish_state(NAN);
+              break;
+            case 23:
+              id(srne_cumulative_inverter_operating_time).publish_state(NAN);
+              id(srne_cumulative_bypass_operating_time).publish_state(NAN);
+              break;
+          }
+
+  - id: srne_p2_handle_failure
+    mode: single
+    parameters:
+      group_index: int
+      is_exception: bool
+      is_not_sent: bool
+    then:
+      - lambda: |-
+          id(srne_p2_in_flight) = false;
+          id(srne_p2_active_group) = -1;
+          if (group_index < 0 || group_index >= 24) return;
+          if (id(srne_p2_fail_count)[group_index] < 10) {
+            id(srne_p2_fail_count)[group_index]++;
+          }
+          const uint8_t fails = id(srne_p2_fail_count)[group_index];
+          id(srne_p2_exc_fail)[group_index] = is_exception;
+          id(srne_p2_invalidate_group).execute(group_index);
+          const bool fast_group = (group_index < 12 || group_index == 19);
+          uint32_t delay_ms = 60000UL;
+          if (is_not_sent) {
+            if (fails <= 1) delay_ms = 5000UL;
+            else if (fails == 2) delay_ms = 30000UL;
+            else if (fails == 3) delay_ms = 60000UL;
+            else delay_ms = 300000UL;
+          } else if (is_exception) {
+            // Modbus exception (e.g. 02H unsupported optional/BMS register): no tight retry.
+            if (fast_group) {
+              delay_ms = (fails == 1) ? 60000UL : (fails == 2 ? 120000UL : 300000UL);
+            } else {
+              delay_ms = ${srne_phase2_static_poll_ms};
+            }
+          } else {
+            // Timeout or malformed payload: at most one bounded retry, then exponential backoff.
+            if (fast_group) {
+              if (fails == 1) delay_ms = 3000UL;
+              else if (fails == 2) delay_ms = 60000UL;
+              else if (fails == 3) delay_ms = 120000UL;
+              else delay_ms = 300000UL;
+            } else {
+              if (fails == 1) delay_ms = 5000UL;
+              else if (fails == 2) delay_ms = 300000UL;
+              else if (fails == 3) delay_ms = 900000UL;
+              else delay_ms = ${srne_phase2_static_poll_ms};
+            }
+          }
+          id(srne_p2_next_due_ms)[group_index] = millis() + delay_ms;
+
+  - id: srne_p2_dispatch
+    mode: single
+    parameters:
+      group_index: int
+      start_addr: int
+      reg_count: int
+    then:
+      - modbus_client.read_holding_registers:
+          modbus_id: modbus1
+          address: 0x01
+          start_address: !lambda 'return static_cast<uint16_t>(start_addr);'
+          count: !lambda 'return static_cast<uint16_t>(reg_count);'
+          on_response:
+            - lambda: |-
+                const int g = id(srne_p2_active_group);
+                if (!id(srne_p2_in_flight) || g < 0 || g >= 24 ||
+                    values.size() != size_t(id(srne_p2_expected_count))) {
+                  id(srne_p2_handle_failure).execute(g, false, false);
+                  return;
+                }
+                const auto u16 = [](uint16_t raw) -> float { return float(raw); };
+                const auto s16 = [](uint16_t raw) -> float {
+                  return float(raw < 0x8000U ? int32_t(raw) : int32_t(raw) - 65536);
+                };
+                // P p9: string registers carry lower 8 bits valid per word; upper 8 bits invalid.
+                const auto decode_lower8_ascii = [](std::span<const uint16_t> words, std::string &out) -> bool {
+                  out.clear();
+                  for (uint16_t w : words) {
+                    const uint8_t ch = static_cast<uint8_t>(w & 0x00FFU);
+                    if (ch == 0x00U || ch == 0xFFU) break;
+                    if (ch < 0x20U || ch >= 0x7FU) return false;
+                    out.push_back(static_cast<char>(ch));
+                  }
+                  while (!out.empty() && out.back() == ' ') out.pop_back();
+                  size_t lead = 0;
+                  while (lead < out.size() && out[lead] == ' ') lead++;
+                  if (lead > 0) out.erase(0, lead);
+                  return !out.empty();
+                };
+                const auto fmt_v100 = [](uint16_t raw) -> std::string {
+                  char buf[32];
+                  snprintf(buf, sizeof(buf), "V%u.%02u (raw %u)", unsigned(raw / 100U), unsigned(raw % 100U), unsigned(raw));
+                  return std::string(buf);
+                };
+
+                switch (g) {
+                  case 0:  // D01: 0x0105-0x0106 (2 words)
+                    id(srne_battery_rated_capacity).publish_state(u16(values[0]));
+                    id(srne_battery_remaining_capacity).publish_state(u16(values[1]));
+                    break;
+                  case 1: {  // D02: 0x010B-0x010C (2 words)
+                    const uint16_t st = values[0];
+                    switch (st) {
+                      case 0x0000: id(srne_battery_charging_status).publish_state("Charge off"); break;
+                      case 0x0001: id(srne_battery_charging_status).publish_state("Quick charge"); break;
+                      case 0x0002: id(srne_battery_charging_status).publish_state("Const voltage charge"); break;
+                      case 0x0004: id(srne_battery_charging_status).publish_state("Float charge"); break;
+                      case 0x0005: id(srne_battery_charging_status).publish_state("Reserved"); break;
+                      case 0x0006: id(srne_battery_charging_status).publish_state("Lithium battery activation"); break;
+                      case 0x0008: id(srne_battery_charging_status).publish_state("Full"); break;
+                      default: id(srne_battery_charging_status).publish_state("Unknown (" + std::to_string(st) + ")"); break;
+                    }
+                    id(srne_battery_cycle_count).publish_state(u16(values[1]));
+                    break;
+                  }
+                  case 2:  // D03: 0x010E (1 word)
+                    id(srne_total_charging_power).publish_state(u16(values[0]));
+                    break;
+                  case 3:  // D04: 0x0112 (1 word)
+                    id(srne_bms_voltage).publish_state(u16(values[0]) * 0.1f);
+                    break;
+                  case 4:  // D05: 0x0114-0x0117 (4 words)
+                    id(srne_bms_temperature).publish_state(s16(values[0]) * 0.1f);
+                    id(srne_bms_charge_voltage_limit).publish_state(u16(values[1]) * 0.1f);
+                    id(srne_bms_charge_current_limit).publish_state(u16(values[2]) * 0.1f);
+                    id(srne_bms_discharge_current_limit).publish_state(u16(values[3]) * 0.1f);
+                    break;
+                  case 5:  // D06: 0x020F (1 word)
+                    id(srne_grid_connection_countdown).publish_state(u16(values[0]));
+                    break;
+                  case 6: {  // D07: 0x0211-0x0212 (2 words)
+                    const uint16_t pw = values[0];
+                    switch (pw) {
+                      case 0: id(srne_password_protection_status).publish_state("User password not entered"); break;
+                      case 1: id(srne_password_protection_status).publish_state("User password entered"); break;
+                      case 4: id(srne_password_protection_status).publish_state("Manufacturer password entered"); break;
+                      default: id(srne_password_protection_status).publish_state("Unknown (" + std::to_string(pw) + ")"); break;
+                    }
+                    id(srne_total_dc_bus_voltage).publish_state(u16(values[1]) * 0.1f);
+                    break;
+                  }
+                  case 7:  // D08: 0x021E (1 word)
+                    id(srne_utility_charging_current).publish_state(u16(values[0]) * 0.1f);
+                    break;
+                  case 8:  // D09: 0x0220 (1 word)
+                    id(srne_heatsink_a_temperature).publish_state(s16(values[0]) * 0.1f);
+                    break;
+                  case 9:  // D10: 0x0222-0x0224 (3 words)
+                    id(srne_heatsink_c_temperature).publish_state(s16(values[0]) * 0.1f);
+                    id(srne_ambient_temperature).publish_state(s16(values[1]) * 0.1f);
+                    id(srne_pv_charging_current).publish_state(u16(values[2]) * 0.1f);
+                    break;
+                  case 10:  // D11: 0x0228-0x0229 (2 words)
+                    id(srne_positive_dc_bus_voltage).publish_state(u16(values[0]) * 0.1f);
+                    id(srne_negative_dc_bus_voltage).publish_state(u16(values[1]) * 0.1f);
+                    break;
+                  case 11:  // D12: 0xF03E-0xF03F (2 words)
+                    id(srne_inverter_operating_time_today).publish_state(u16(values[0]));
+                    id(srne_bypass_operating_time_today).publish_state(u16(values[1]));
+                    break;
+                  case 12: {  // S01: 0x000B (1 word)
+                    const uint16_t pt = values[0];
+                    switch (pt) {
+                      case 0: id(srne_product_type).publish_state("Controller, Residential"); break;
+                      case 1: id(srne_product_type).publish_state("Controller, Street Lighting"); break;
+                      case 3: id(srne_product_type).publish_state("Grid-Tied Inverter"); break;
+                      case 4: id(srne_product_type).publish_state("Controller-Inverter Integrated Unit"); break;
+                      case 5: id(srne_product_type).publish_state("Low-Frequency Off-Grid"); break;
+                      default: id(srne_product_type).publish_state("Unknown (" + std::to_string(pt) + ")"); break;
+                    }
+                    break;
+                  }
+                  case 13:  // S02: 0x0014 (1 word)
+                    id(srne_software_version_app).publish_state(fmt_v100(values[0]));
+                    break;
+                  case 14:  // S03: 0x0016 (1 word)
+                    id(srne_hardware_version_control_board).publish_state(fmt_v100(values[0]));
+                    break;
+                  case 15: {  // S04: 0x001A-0x001C (3 words)
+                    id(srne_device_address).publish_state(u16(values[0]));
+                    id(srne_model_code).publish_state(u16(values[1]));
+                    char pbuf[24];
+                    snprintf(pbuf, sizeof(pbuf), "raw %u (0x%04X)", unsigned(values[2]), unsigned(values[2]));
+                    id(srne_protocol_version).publish_state(std::string(pbuf));
+                    break;
+                  }
+                  case 16: {  // S05: 0x0021-0x0034 (20 words)
+                    std::string s;
+                    if (!decode_lower8_ascii(values, s)) {
+                      id(srne_p2_handle_failure).execute(g, false, false);
+                      return;
+                    }
+                    id(srne_software_build_time).publish_state(s);
+                    break;
+                  }
+                  case 17: {  // S06: 0x0035-0x0048 (20 words)
+                    std::string s;
+                    if (!decode_lower8_ascii(values, s)) {
+                      id(srne_p2_handle_failure).execute(g, false, false);
+                      return;
+                    }
+                    id(srne_product_serial_number).publish_state(s);
+                    break;
+                  }
+                  case 18:  // S07: 0xE003 (1 word, FC03 read-only)
+                    id(srne_battery_rated_voltage).publish_state(u16(values[0]));
+                    break;
+                  case 19: {  // S08: 0xE037 (1 word, FC03 read-only)
+                    const uint16_t om = values[0];
+                    switch (om) {
+                      case 0: id(srne_configured_operating_mode).publish_state("Off-grid mode (disabled)"); break;
+                      case 1: id(srne_configured_operating_mode).publish_state("Grid-connected mode"); break;
+                      case 2: id(srne_configured_operating_mode).publish_state("AC OUT anti-backflow"); break;
+                      case 3: id(srne_configured_operating_mode).publish_state("AC IN anti-backflow"); break;
+                      default: id(srne_configured_operating_mode).publish_state("Unknown (" + std::to_string(om) + ")"); break;
+                    }
+                    break;
+                  }
+                  case 20: {  // S09: 0xE201 (1 word, FC03 read-only)
+                    const uint16_t pm = values[0];
+                    switch (pm) {
+                      case 0: id(srne_parallel_operation_mode).publish_state("Single unit"); break;
+                      case 1: id(srne_parallel_operation_mode).publish_state("Single-phase parallel"); break;
+                      case 2: id(srne_parallel_operation_mode).publish_state("Two-phase parallel"); break;
+                      case 3: id(srne_parallel_operation_mode).publish_state("Two-phase parallel, 120°"); break;
+                      case 4: id(srne_parallel_operation_mode).publish_state("Two-phase parallel, 180°"); break;
+                      case 5: id(srne_parallel_operation_mode).publish_state("Three-phase A"); break;
+                      case 6: id(srne_parallel_operation_mode).publish_state("Three-phase B"); break;
+                      case 7: id(srne_parallel_operation_mode).publish_state("Three-phase C"); break;
+                      default: id(srne_parallel_operation_mode).publish_state("Unknown (" + std::to_string(pm) + ")"); break;
+                    }
+                    break;
+                  }
+                  case 21: {  // S10: 0xE215 (1 word, FC03 read-only)
+                    const uint16_t bm = values[0];
+                    switch (bm) {
+                      case 0: id(srne_bms_enable_mode).publish_state("Disable"); break;
+                      case 1: id(srne_bms_enable_mode).publish_state("Enable 485-BMS"); break;
+                      case 2: id(srne_bms_enable_mode).publish_state("Enable CAN-BMS"); break;
+                      default: id(srne_bms_enable_mode).publish_state("Unknown (" + std::to_string(bm) + ")"); break;
+                    }
+                    break;
+                  }
+                  case 22:  // S11: 0xF031 (1 word)
+                    id(srne_total_operating_days).publish_state(u16(values[0]));
+                    break;
+                  case 23:  // S12: 0xF04A-0xF04B (2 words)
+                    id(srne_cumulative_inverter_operating_time).publish_state(u16(values[0]));
+                    id(srne_cumulative_bypass_operating_time).publish_state(u16(values[1]));
+                    break;
+                }
+
+                const uint32_t now = millis();
+                id(srne_p2_in_flight) = false;
+                id(srne_p2_active_group) = -1;
+                id(srne_p2_valid)[g] = true;
+                id(srne_p2_invalid_pub)[g] = false;
+                id(srne_p2_fail_count)[g] = 0;
+                id(srne_p2_exc_fail)[g] = false;
+                id(srne_p2_last_ok_ms)[g] = now;
+                const uint32_t period_ms =
+                    (g < 12) ? uint32_t(${srne_phase2_dynamic_poll_ms})
+                             : (g == 19 ? uint32_t(${srne_phase2_slow_mode_poll_ms})
+                                        : uint32_t(${srne_phase2_static_poll_ms}));
+                id(srne_p2_next_due_ms)[g] = now + period_ms;
+          on_custom_response:
+            - lambda: 'id(srne_p2_handle_failure).execute(id(srne_p2_active_group), false, false);'
+          on_error:
+            - lambda: 'id(srne_p2_handle_failure).execute(id(srne_p2_active_group), true, false);'
+          on_no_response:
+            then:
+              - lambda: 'id(srne_p2_handle_failure).execute(id(srne_p2_active_group), false, false);'
+            retry: !lambda 'return false;'
+          on_not_sent:
+            - lambda: 'id(srne_p2_handle_failure).execute(id(srne_p2_active_group), false, true);'
+
+interval:
+  - interval: 250ms
+    then:
+      - lambda: |-
+          static constexpr std::array<uint16_t, 24> kAddrs = {
+              0x0105, 0x010B, 0x010E, 0x0112, 0x0114, 0x020F, 0x0211, 0x021E,
+              0x0220, 0x0222, 0x0228, 0xF03E, 0x000B, 0x0014, 0x0016, 0x001A,
+              0x0021, 0x0035, 0xE003, 0xE037, 0xE201, 0xE215, 0xF031, 0xF04A};
+          static constexpr std::array<uint16_t, 24> kCounts = {
+              2, 2, 1, 1, 4, 1, 2, 1,
+              1, 3, 2, 2, 1, 1, 1, 3,
+              20, 20, 1, 1, 1, 1, 1, 2};
+          const uint32_t now = millis();
+
+          // 1. In-flight watchdog (bounded recovery if no terminal callback fires).
+          if (id(srne_p2_in_flight) &&
+              uint32_t(now - id(srne_p2_sent_at)) > uint32_t(${srne_phase2_inflight_watchdog_ms})) {
+            id(srne_p2_handle_failure).execute(id(srne_p2_active_group), false, false);
+          }
+
+          // 2. Staggered recovery when Phase 1 regains healthy RS485 communication.
+          const bool p1_healthy = id(srne_modbus_communication_health).state;
+          if (p1_healthy && !id(srne_p2_prev_p1_health)) {
+            uint32_t stagger = 2000UL;
+            for (int g = 0; g < 24; g++) {
+              if (!id(srne_p2_exc_fail)[g] && id(srne_p2_fail_count)[g] > 0) {
+                id(srne_p2_next_due_ms)[g] = now + stagger;
+                stagger += (g < 12) ? 750UL : 2500UL;
+              }
+            }
+          }
+          id(srne_p2_prev_p1_health) = p1_healthy;
+
+          // 3. Independent per-group freshness expiration (3x configured group period).
+          for (int g = 0; g < 24; g++) {
+            if (!id(srne_p2_valid)[g]) continue;
+            const uint32_t period_ms =
+                (g < 12) ? uint32_t(${srne_phase2_dynamic_poll_ms})
+                         : (g == 19 ? uint32_t(${srne_phase2_slow_mode_poll_ms})
+                                    : uint32_t(${srne_phase2_static_poll_ms}));
+            const uint32_t fresh_ms = 3UL * period_ms;
+            if (uint32_t(now - id(srne_p2_last_ok_ms)[g]) > fresh_ms) {
+              id(srne_p2_invalidate_group).execute(g);
+            }
+          }
+
+          // 4. Only one outstanding Phase 2 request at a time.
+          if (id(srne_p2_in_flight)) return;
+
+          // 5. Cooperative yield to Phase 1: check bus idle, active Phase 1 sweep, and upcoming Phase 1 boundary.
+          if (!id(modbus1).tx_buffer_empty() || id(modbus1).tx_blocked()) return;
+          if (id(srne_phase1_scan_active) || id(srne_phase1_awaiting)) return;
+          if (id(srne_phase1_have_scan)) {
+            const uint32_t p1_int = id(srne_phase1_controller).get_update_interval();
+            const uint32_t elapsed = uint32_t(now - id(srne_phase1_last_scan));
+            if (p1_int > 1000UL && (elapsed % p1_int) >= (p1_int - 700UL)) return;
+          }
+
+          // 6. Round-robin selection of at most one due group, enforcing static request spacing.
+          int chosen = -1;
+          for (int off = 0; off < 24; off++) {
+            const int g = (id(srne_p2_rr_cursor) + off) % 24;
+            if (int32_t(now - id(srne_p2_next_due_ms)[g]) < 0) continue;
+            if (g >= 12 && id(srne_p2_last_static_ms) != 0 &&
+                uint32_t(now - id(srne_p2_last_static_ms)) < uint32_t(${srne_phase2_static_min_spacing_ms})) {
+              continue;
+            }
+            chosen = g;
+            break;
+          }
+          if (chosen < 0) return;
+
+          id(srne_p2_rr_cursor) = (chosen + 1) % 24;
+          id(srne_p2_in_flight) = true;
+          id(srne_p2_active_group) = chosen;
+          id(srne_p2_expected_addr) = kAddrs[chosen];
+          id(srne_p2_expected_count) = kCounts[chosen];
+          id(srne_p2_sent_at) = now;
+          if (chosen >= 12) id(srne_p2_last_static_ms) = now;
+          id(srne_p2_dispatch).execute(chosen, kAddrs[chosen], kCounts[chosen]);
+
+sensor:
+  # D01: 0x0105-0x0106
+  - platform: template
+    id: srne_battery_rated_capacity
+    name: "Battery Rated Capacity"
+    unit_of_measurement: "Ah"
+    state_class: measurement
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_battery_remaining_capacity
+    name: "Remaining Battery Capacity"
+    unit_of_measurement: "Ah"
+    state_class: measurement
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # D02: 0x010C (withhold total_increasing until BMS persistence/monotonicity validated)
+  - platform: template
+    id: srne_battery_cycle_count
+    name: "Battery Cycle Count"
+    unit_of_measurement: "cycles"
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # D03: 0x010E
+  - platform: template
+    id: srne_total_charging_power
+    name: "Total Charging Power"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # D04: 0x0112
+  - platform: template
+    id: srne_bms_voltage
+    name: "Battery BMS Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D05: 0x0114-0x0117
+  - platform: template
+    id: srne_bms_temperature
+    name: "Battery BMS Temperature"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_bms_charge_voltage_limit
+    name: "BMS Charge Voltage Limit"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_bms_charge_current_limit
+    name: "BMS Charge Current Limit"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_bms_discharge_current_limit
+    name: "BMS Discharge Current Limit"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D06: 0x020F
+  - platform: template
+    id: srne_grid_connection_countdown
+    name: "Grid-Connection Countdown"
+    unit_of_measurement: "s"
+    device_class: duration
+    state_class: measurement
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # D07: 0x0212
+  - platform: template
+    id: srne_total_dc_bus_voltage
+    name: "Total DC Bus Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D08: 0x021E
+  - platform: template
+    id: srne_utility_charging_current
+    name: "Utility Charging Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D09: 0x0220
+  - platform: template
+    id: srne_heatsink_a_temperature
+    name: "Heatsink A Temperature (DC-DC)"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D10: 0x0222-0x0224
+  - platform: template
+    id: srne_heatsink_c_temperature
+    name: "Heatsink C Temperature (Transformer)"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_ambient_temperature
+    name: "Ambient Temperature"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_pv_charging_current
+    name: "PV Charging Current"
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D11: 0x0228-0x0229
+  - platform: template
+    id: srne_positive_dc_bus_voltage
+    name: "Positive DC Bus Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_negative_dc_bus_voltage
+    name: "Negative DC Bus Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+  # D12: 0xF03E-0xF03F (withhold total_increasing until midnight reset validated)
+  - platform: template
+    id: srne_inverter_operating_time_today
+    name: "Inverter Operating Time Today"
+    unit_of_measurement: "min"
+    device_class: duration
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_bypass_operating_time_today
+    name: "Bypass Operating Time Today"
+    unit_of_measurement: "min"
+    device_class: duration
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # S04: 0x001A-0x001B
+  - platform: template
+    id: srne_device_address
+    name: "Device RS485 Address"
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_model_code
+    name: "Model Code"
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # S07: 0xE003 (FC03 read-only; A03 prohibits writes)
+  - platform: template
+    id: srne_battery_rated_voltage
+    name: "Battery Rated Voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # S11: 0xF031 (withhold total_increasing until persistence/rollover validated)
+  - platform: template
+    id: srne_total_operating_days
+    name: "Total Operating Days"
+    unit_of_measurement: "d"
+    device_class: duration
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  # S12: 0xF04A-0xF04B (withhold total_increasing until persistence/rollover validated)
+  - platform: template
+    id: srne_cumulative_inverter_operating_time
+    name: "Cumulative Inverter Operating Time"
+    unit_of_measurement: "h"
+    device_class: duration
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    id: srne_cumulative_bypass_operating_time
+    name: "Cumulative Bypass Operating Time"
+    unit_of_measurement: "h"
+    device_class: duration
+    state_class: ""
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+
+text_sensor:
+  # D02: 0x010B
+  - platform: template
+    id: srne_battery_charging_status
+    name: "Battery Charging Status"
+    entity_category: diagnostic
+    update_interval: never
+  # D07: 0x0211
+  - platform: template
+    id: srne_password_protection_status
+    name: "Password Protection Status"
+    entity_category: diagnostic
+    update_interval: never
+  # S01: 0x000B
+  - platform: template
+    id: srne_product_type
+    name: "Product Type"
+    entity_category: diagnostic
+    update_interval: never
+  # S02: 0x0014
+  - platform: template
+    id: srne_software_version_app
+    name: "Software Version (APP)"
+    entity_category: diagnostic
+    update_interval: never
+  # S03: 0x0016
+  - platform: template
+    id: srne_hardware_version_control_board
+    name: "Hardware Version (Control Board)"
+    entity_category: diagnostic
+    update_interval: never
+  # S04: 0x001C
+  - platform: template
+    id: srne_protocol_version
+    name: "RS485 Protocol Version"
+    entity_category: diagnostic
+    update_interval: never
+  # S05: 0x0021-0x0034
+  - platform: template
+    id: srne_software_build_time
+    name: "Software Build Time"
+    entity_category: diagnostic
+    update_interval: never
+  # S06: 0x0035-0x0048
+  - platform: template
+    id: srne_product_serial_number
+    name: "Product Serial Number"
+    entity_category: diagnostic
+    update_interval: never
+  # S08: 0xE037 (FC03 read-only)
+  - platform: template
+    id: srne_configured_operating_mode
+    name: "Configured Operating Mode"
+    entity_category: diagnostic
+    update_interval: never
+  # S09: 0xE201 (FC03 read-only)
+  - platform: template
+    id: srne_parallel_operation_mode
+    name: "Parallel Operation Mode"
+    entity_category: diagnostic
+    update_interval: never
+  # S10: 0xE215 (FC03 read-only)
+  - platform: template
+    id: srne_bms_enable_mode
+    name: "BMS Communication Mode"
+    entity_category: diagnostic
+    update_interval: never

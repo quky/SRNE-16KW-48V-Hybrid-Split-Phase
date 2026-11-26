@@ -34,3 +34,6 @@ Thumbs.db
 
 # Official manufacturer PDFs - local reference only
 documentation/official/*.pdf
+
+# Modbus RTU simulator environment
+.venv-simulator/

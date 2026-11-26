@@ -1,0 +1,3675 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_status": "SYNTHETIC_OFFLINE_FIXTURE_NOT_PHYSICAL_INVERTER_DATA",
+  "synthetic_identification_note": "Product identification, serial number, model code (16000), version numbers, build time, and all electrical/thermal measurements are synthetic deterministic values generated strictly for offline/simulator testing.",
+  "string_upper_byte_test_note": "Registers 0x0021..0x0034 and 0x0035..0x0048 intentionally populate non-zero upper bytes (0xA5, 0x3C, 0x7E, 0xFF) on ASCII character words to verify lower-8-bits-per-word masking (word & 0x00FF) per SRNE Modbus V2.04 p9.",
+  "scenario_count": 5,
+  "register_words_per_scenario": 107,
+  "scenarios": [
+    {
+      "scenario_id": "S1_solar_charging",
+      "title": "Normal solar production with battery charging",
+      "description": "Daytime inverter operation with 8,428 W PV generation supplying 3,450 W split-phase load and charging the 48V battery at 85.0 A (-4,556 W net discharge sign convention).",
+      "fixture_status": "SYNTHETIC",
+      "slave_address": 1,
+      "registers": {
+        "0x000B": {
+          "address_dec": 11,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0014": {
+          "address_dec": 20,
+          "raw_u16": 125,
+          "raw_hex": "0x007D"
+        },
+        "0x0016": {
+          "address_dec": 22,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x001A": {
+          "address_dec": 26,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x001B": {
+          "address_dec": 27,
+          "raw_u16": 16000,
+          "raw_hex": "0x3E80"
+        },
+        "0x001C": {
+          "address_dec": 28,
+          "raw_u16": 204,
+          "raw_hex": "0x00CC"
+        },
+        "0x0021": {
+          "address_dec": 33,
+          "raw_u16": 42290,
+          "raw_hex": "0xA532"
+        },
+        "0x0022": {
+          "address_dec": 34,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0023": {
+          "address_dec": 35,
+          "raw_u16": 32306,
+          "raw_hex": "0x7E32"
+        },
+        "0x0024": {
+          "address_dec": 36,
+          "raw_u16": 65333,
+          "raw_hex": "0xFF35"
+        },
+        "0x0025": {
+          "address_dec": 37,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0026": {
+          "address_dec": 38,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x0027": {
+          "address_dec": 39,
+          "raw_u16": 32305,
+          "raw_hex": "0x7E31"
+        },
+        "0x0028": {
+          "address_dec": 40,
+          "raw_u16": 65325,
+          "raw_hex": "0xFF2D"
+        },
+        "0x0029": {
+          "address_dec": 41,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x002A": {
+          "address_dec": 42,
+          "raw_u16": 15413,
+          "raw_hex": "0x3C35"
+        },
+        "0x002B": {
+          "address_dec": 43,
+          "raw_u16": 32288,
+          "raw_hex": "0x7E20"
+        },
+        "0x002C": {
+          "address_dec": 44,
+          "raw_u16": 65329,
+          "raw_hex": "0xFF31"
+        },
+        "0x002D": {
+          "address_dec": 45,
+          "raw_u16": 42288,
+          "raw_hex": "0xA530"
+        },
+        "0x002E": {
+          "address_dec": 46,
+          "raw_u16": 15418,
+          "raw_hex": "0x3C3A"
+        },
+        "0x002F": {
+          "address_dec": 47,
+          "raw_u16": 32307,
+          "raw_hex": "0x7E33"
+        },
+        "0x0030": {
+          "address_dec": 48,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0031": {
+          "address_dec": 49,
+          "raw_u16": 42298,
+          "raw_hex": "0xA53A"
+        },
+        "0x0032": {
+          "address_dec": 50,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0033": {
+          "address_dec": 51,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0034": {
+          "address_dec": 52,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0035": {
+          "address_dec": 53,
+          "raw_u16": 42323,
+          "raw_hex": "0xA553"
+        },
+        "0x0036": {
+          "address_dec": 54,
+          "raw_u16": 15449,
+          "raw_hex": "0x3C59"
+        },
+        "0x0037": {
+          "address_dec": 55,
+          "raw_u16": 32334,
+          "raw_hex": "0x7E4E"
+        },
+        "0x0038": {
+          "address_dec": 56,
+          "raw_u16": 65364,
+          "raw_hex": "0xFF54"
+        },
+        "0x0039": {
+          "address_dec": 57,
+          "raw_u16": 42312,
+          "raw_hex": "0xA548"
+        },
+        "0x003A": {
+          "address_dec": 58,
+          "raw_u16": 15405,
+          "raw_hex": "0x3C2D"
+        },
+        "0x003B": {
+          "address_dec": 59,
+          "raw_u16": 32339,
+          "raw_hex": "0x7E53"
+        },
+        "0x003C": {
+          "address_dec": 60,
+          "raw_u16": 65360,
+          "raw_hex": "0xFF50"
+        },
+        "0x003D": {
+          "address_dec": 61,
+          "raw_u16": 42313,
+          "raw_hex": "0xA549"
+        },
+        "0x003E": {
+          "address_dec": 62,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x003F": {
+          "address_dec": 63,
+          "raw_u16": 32310,
+          "raw_hex": "0x7E36"
+        },
+        "0x0040": {
+          "address_dec": 64,
+          "raw_u16": 65355,
+          "raw_hex": "0xFF4B"
+        },
+        "0x0041": {
+          "address_dec": 65,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0042": {
+          "address_dec": 66,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0043": {
+          "address_dec": 67,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0044": {
+          "address_dec": 68,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0045": {
+          "address_dec": 69,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x0046": {
+          "address_dec": 70,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0047": {
+          "address_dec": 71,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0048": {
+          "address_dec": 72,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0100": {
+          "address_dec": 256,
+          "raw_u16": 74,
+          "raw_hex": "0x004A"
+        },
+        "0x0101": {
+          "address_dec": 257,
+          "raw_u16": 536,
+          "raw_hex": "0x0218"
+        },
+        "0x0102": {
+          "address_dec": 258,
+          "raw_u16": 64686,
+          "raw_hex": "0xFCAE"
+        },
+        "0x0103": {
+          "address_dec": 259,
+          "raw_u16": 265,
+          "raw_hex": "0x0109"
+        },
+        "0x0105": {
+          "address_dec": 261,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0106": {
+          "address_dec": 262,
+          "raw_u16": 222,
+          "raw_hex": "0x00DE"
+        },
+        "0x0107": {
+          "address_dec": 263,
+          "raw_u16": 3850,
+          "raw_hex": "0x0F0A"
+        },
+        "0x0108": {
+          "address_dec": 264,
+          "raw_u16": 112,
+          "raw_hex": "0x0070"
+        },
+        "0x0109": {
+          "address_dec": 265,
+          "raw_u16": 4312,
+          "raw_hex": "0x10D8"
+        },
+        "0x010B": {
+          "address_dec": 267,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x010C": {
+          "address_dec": 268,
+          "raw_u16": 142,
+          "raw_hex": "0x008E"
+        },
+        "0x010E": {
+          "address_dec": 270,
+          "raw_u16": 4560,
+          "raw_hex": "0x11D0"
+        },
+        "0x010F": {
+          "address_dec": 271,
+          "raw_u16": 3920,
+          "raw_hex": "0x0F50"
+        },
+        "0x0110": {
+          "address_dec": 272,
+          "raw_u16": 105,
+          "raw_hex": "0x0069"
+        },
+        "0x0111": {
+          "address_dec": 273,
+          "raw_u16": 4116,
+          "raw_hex": "0x1014"
+        },
+        "0x0112": {
+          "address_dec": 274,
+          "raw_u16": 535,
+          "raw_hex": "0x0217"
+        },
+        "0x0114": {
+          "address_dec": 276,
+          "raw_u16": 258,
+          "raw_hex": "0x0102"
+        },
+        "0x0115": {
+          "address_dec": 277,
+          "raw_u16": 560,
+          "raw_hex": "0x0230"
+        },
+        "0x0116": {
+          "address_dec": 278,
+          "raw_u16": 1500,
+          "raw_hex": "0x05DC"
+        },
+        "0x0117": {
+          "address_dec": 279,
+          "raw_u16": 2000,
+          "raw_hex": "0x07D0"
+        },
+        "0x0204": {
+          "address_dec": 516,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0205": {
+          "address_dec": 517,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0206": {
+          "address_dec": 518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0207": {
+          "address_dec": 519,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x020F": {
+          "address_dec": 527,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0210": {
+          "address_dec": 528,
+          "raw_u16": 3,
+          "raw_hex": "0x0003"
+        },
+        "0x0211": {
+          "address_dec": 529,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0212": {
+          "address_dec": 530,
+          "raw_u16": 4100,
+          "raw_hex": "0x1004"
+        },
+        "0x0213": {
+          "address_dec": 531,
+          "raw_u16": 1205,
+          "raw_hex": "0x04B5"
+        },
+        "0x0214": {
+          "address_dec": 532,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0215": {
+          "address_dec": 533,
+          "raw_u16": 6000,
+          "raw_hex": "0x1770"
+        },
+        "0x0216": {
+          "address_dec": 534,
+          "raw_u16": 1201,
+          "raw_hex": "0x04B1"
+        },
+        "0x0218": {
+          "address_dec": 536,
+          "raw_u16": 6000,
+          "raw_hex": "0x1770"
+        },
+        "0x0219": {
+          "address_dec": 537,
+          "raw_u16": 150,
+          "raw_hex": "0x0096"
+        },
+        "0x021B": {
+          "address_dec": 539,
+          "raw_u16": 1750,
+          "raw_hex": "0x06D6"
+        },
+        "0x021E": {
+          "address_dec": 542,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0220": {
+          "address_dec": 544,
+          "raw_u16": 412,
+          "raw_hex": "0x019C"
+        },
+        "0x0221": {
+          "address_dec": 545,
+          "raw_u16": 425,
+          "raw_hex": "0x01A9"
+        },
+        "0x0222": {
+          "address_dec": 546,
+          "raw_u16": 398,
+          "raw_hex": "0x018E"
+        },
+        "0x0223": {
+          "address_dec": 547,
+          "raw_u16": 284,
+          "raw_hex": "0x011C"
+        },
+        "0x0224": {
+          "address_dec": 548,
+          "raw_u16": 850,
+          "raw_hex": "0x0352"
+        },
+        "0x0228": {
+          "address_dec": 552,
+          "raw_u16": 2052,
+          "raw_hex": "0x0804"
+        },
+        "0x0229": {
+          "address_dec": 553,
+          "raw_u16": 2048,
+          "raw_hex": "0x0800"
+        },
+        "0x022A": {
+          "address_dec": 554,
+          "raw_u16": 1202,
+          "raw_hex": "0x04B2"
+        },
+        "0x022C": {
+          "address_dec": 556,
+          "raw_u16": 1203,
+          "raw_hex": "0x04B3"
+        },
+        "0x0230": {
+          "address_dec": 560,
+          "raw_u16": 145,
+          "raw_hex": "0x0091"
+        },
+        "0x0232": {
+          "address_dec": 562,
+          "raw_u16": 1700,
+          "raw_hex": "0x06A4"
+        },
+        "0x0238": {
+          "address_dec": 568,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE003": {
+          "address_dec": 57347,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0xE037": {
+          "address_dec": 57399,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0xE201": {
+          "address_dec": 57857,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE215": {
+          "address_dec": 57877,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0xF02F": {
+          "address_dec": 61487,
+          "raw_u16": 246,
+          "raw_hex": "0x00F6"
+        },
+        "0xF030": {
+          "address_dec": 61488,
+          "raw_u16": 114,
+          "raw_hex": "0x0072"
+        },
+        "0xF031": {
+          "address_dec": 61489,
+          "raw_u16": 185,
+          "raw_hex": "0x00B9"
+        },
+        "0xF03E": {
+          "address_dec": 61502,
+          "raw_u16": 320,
+          "raw_hex": "0x0140"
+        },
+        "0xF03F": {
+          "address_dec": 61503,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF04A": {
+          "address_dec": 61514,
+          "raw_u16": 2840,
+          "raw_hex": "0x0B18"
+        },
+        "0xF04B": {
+          "address_dec": 61515,
+          "raw_u16": 112,
+          "raw_hex": "0x0070"
+        },
+        "0xF04D": {
+          "address_dec": 61517,
+          "raw_u16": 128,
+          "raw_hex": "0x0080"
+        },
+        "0xF04E": {
+          "address_dec": 61518,
+          "raw_u16": 21,
+          "raw_hex": "0x0015"
+        }
+      },
+      "group_payloads": {
+        "P1-R01": [
+          74,
+          536,
+          64686,
+          265
+        ],
+        "P1-R02": [
+          3850,
+          112,
+          4312
+        ],
+        "P1-R03": [
+          3920,
+          105,
+          4116
+        ],
+        "P1-R04": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P1-R05": [
+          3
+        ],
+        "P1-R06": [
+          1205,
+          0,
+          6000,
+          1201
+        ],
+        "P1-R07": [
+          6000,
+          150
+        ],
+        "P1-R08": [
+          1750
+        ],
+        "P1-R09": [
+          425
+        ],
+        "P1-R10": [
+          1202
+        ],
+        "P1-R11": [
+          1203
+        ],
+        "P1-R12": [
+          145
+        ],
+        "P1-R13": [
+          1700
+        ],
+        "P1-R14": [
+          0
+        ],
+        "P1-R15": [
+          246,
+          114
+        ],
+        "P1-R16": [
+          128,
+          21
+        ],
+        "P2-D01": [
+          300,
+          222
+        ],
+        "P2-D02": [
+          1,
+          142
+        ],
+        "P2-D03": [
+          4560
+        ],
+        "P2-D04": [
+          535
+        ],
+        "P2-D05": [
+          258,
+          560,
+          1500,
+          2000
+        ],
+        "P2-D06": [
+          0
+        ],
+        "P2-D07": [
+          0,
+          4100
+        ],
+        "P2-D08": [
+          0
+        ],
+        "P2-D09": [
+          412
+        ],
+        "P2-D10": [
+          398,
+          284,
+          850
+        ],
+        "P2-D11": [
+          2052,
+          2048
+        ],
+        "P2-D12": [
+          320,
+          0
+        ],
+        "P2-S01": [
+          4
+        ],
+        "P2-S02": [
+          125
+        ],
+        "P2-S03": [
+          110
+        ],
+        "P2-S04": [
+          1,
+          16000,
+          204
+        ],
+        "P2-S05": [
+          42290,
+          15408,
+          32306,
+          65333,
+          42285,
+          15409,
+          32305,
+          65325,
+          42289,
+          15413,
+          32288,
+          65329,
+          42288,
+          15418,
+          32307,
+          65328,
+          42298,
+          15408,
+          32304,
+          0
+        ],
+        "P2-S06": [
+          42323,
+          15449,
+          32334,
+          65364,
+          42312,
+          15405,
+          32339,
+          65360,
+          42313,
+          15409,
+          32310,
+          65355,
+          42285,
+          15408,
+          32304,
+          65328,
+          42289,
+          0,
+          0,
+          0
+        ],
+        "P2-S07": [
+          48
+        ],
+        "P2-S08": [
+          1
+        ],
+        "P2-S09": [
+          0
+        ],
+        "P2-S10": [
+          2
+        ],
+        "P2-S11": [
+          185
+        ],
+        "P2-S12": [
+          2840,
+          112
+        ]
+      }
+    },
+    {
+      "scenario_id": "S2_battery_discharging",
+      "title": "Battery discharging and supplying inverter output",
+      "description": "Evening inverter operation with zero PV generation, battery discharging at +75.0 A (+3,840 W) to supply 3,470 W split-phase output.",
+      "fixture_status": "SYNTHETIC",
+      "slave_address": 1,
+      "registers": {
+        "0x000B": {
+          "address_dec": 11,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0014": {
+          "address_dec": 20,
+          "raw_u16": 125,
+          "raw_hex": "0x007D"
+        },
+        "0x0016": {
+          "address_dec": 22,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x001A": {
+          "address_dec": 26,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x001B": {
+          "address_dec": 27,
+          "raw_u16": 16000,
+          "raw_hex": "0x3E80"
+        },
+        "0x001C": {
+          "address_dec": 28,
+          "raw_u16": 204,
+          "raw_hex": "0x00CC"
+        },
+        "0x0021": {
+          "address_dec": 33,
+          "raw_u16": 42290,
+          "raw_hex": "0xA532"
+        },
+        "0x0022": {
+          "address_dec": 34,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0023": {
+          "address_dec": 35,
+          "raw_u16": 32306,
+          "raw_hex": "0x7E32"
+        },
+        "0x0024": {
+          "address_dec": 36,
+          "raw_u16": 65333,
+          "raw_hex": "0xFF35"
+        },
+        "0x0025": {
+          "address_dec": 37,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0026": {
+          "address_dec": 38,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x0027": {
+          "address_dec": 39,
+          "raw_u16": 32305,
+          "raw_hex": "0x7E31"
+        },
+        "0x0028": {
+          "address_dec": 40,
+          "raw_u16": 65325,
+          "raw_hex": "0xFF2D"
+        },
+        "0x0029": {
+          "address_dec": 41,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x002A": {
+          "address_dec": 42,
+          "raw_u16": 15413,
+          "raw_hex": "0x3C35"
+        },
+        "0x002B": {
+          "address_dec": 43,
+          "raw_u16": 32288,
+          "raw_hex": "0x7E20"
+        },
+        "0x002C": {
+          "address_dec": 44,
+          "raw_u16": 65329,
+          "raw_hex": "0xFF31"
+        },
+        "0x002D": {
+          "address_dec": 45,
+          "raw_u16": 42288,
+          "raw_hex": "0xA530"
+        },
+        "0x002E": {
+          "address_dec": 46,
+          "raw_u16": 15418,
+          "raw_hex": "0x3C3A"
+        },
+        "0x002F": {
+          "address_dec": 47,
+          "raw_u16": 32307,
+          "raw_hex": "0x7E33"
+        },
+        "0x0030": {
+          "address_dec": 48,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0031": {
+          "address_dec": 49,
+          "raw_u16": 42298,
+          "raw_hex": "0xA53A"
+        },
+        "0x0032": {
+          "address_dec": 50,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0033": {
+          "address_dec": 51,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0034": {
+          "address_dec": 52,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0035": {
+          "address_dec": 53,
+          "raw_u16": 42323,
+          "raw_hex": "0xA553"
+        },
+        "0x0036": {
+          "address_dec": 54,
+          "raw_u16": 15449,
+          "raw_hex": "0x3C59"
+        },
+        "0x0037": {
+          "address_dec": 55,
+          "raw_u16": 32334,
+          "raw_hex": "0x7E4E"
+        },
+        "0x0038": {
+          "address_dec": 56,
+          "raw_u16": 65364,
+          "raw_hex": "0xFF54"
+        },
+        "0x0039": {
+          "address_dec": 57,
+          "raw_u16": 42312,
+          "raw_hex": "0xA548"
+        },
+        "0x003A": {
+          "address_dec": 58,
+          "raw_u16": 15405,
+          "raw_hex": "0x3C2D"
+        },
+        "0x003B": {
+          "address_dec": 59,
+          "raw_u16": 32339,
+          "raw_hex": "0x7E53"
+        },
+        "0x003C": {
+          "address_dec": 60,
+          "raw_u16": 65360,
+          "raw_hex": "0xFF50"
+        },
+        "0x003D": {
+          "address_dec": 61,
+          "raw_u16": 42313,
+          "raw_hex": "0xA549"
+        },
+        "0x003E": {
+          "address_dec": 62,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x003F": {
+          "address_dec": 63,
+          "raw_u16": 32310,
+          "raw_hex": "0x7E36"
+        },
+        "0x0040": {
+          "address_dec": 64,
+          "raw_u16": 65355,
+          "raw_hex": "0xFF4B"
+        },
+        "0x0041": {
+          "address_dec": 65,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0042": {
+          "address_dec": 66,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0043": {
+          "address_dec": 67,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0044": {
+          "address_dec": 68,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0045": {
+          "address_dec": 69,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x0046": {
+          "address_dec": 70,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0047": {
+          "address_dec": 71,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0048": {
+          "address_dec": 72,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0100": {
+          "address_dec": 256,
+          "raw_u16": 52,
+          "raw_hex": "0x0034"
+        },
+        "0x0101": {
+          "address_dec": 257,
+          "raw_u16": 512,
+          "raw_hex": "0x0200"
+        },
+        "0x0102": {
+          "address_dec": 258,
+          "raw_u16": 750,
+          "raw_hex": "0x02EE"
+        },
+        "0x0103": {
+          "address_dec": 259,
+          "raw_u16": 290,
+          "raw_hex": "0x0122"
+        },
+        "0x0105": {
+          "address_dec": 261,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0106": {
+          "address_dec": 262,
+          "raw_u16": 156,
+          "raw_hex": "0x009C"
+        },
+        "0x0107": {
+          "address_dec": 263,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0108": {
+          "address_dec": 264,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0109": {
+          "address_dec": 265,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010B": {
+          "address_dec": 267,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010C": {
+          "address_dec": 268,
+          "raw_u16": 143,
+          "raw_hex": "0x008F"
+        },
+        "0x010E": {
+          "address_dec": 270,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010F": {
+          "address_dec": 271,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0110": {
+          "address_dec": 272,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0111": {
+          "address_dec": 273,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0112": {
+          "address_dec": 274,
+          "raw_u16": 513,
+          "raw_hex": "0x0201"
+        },
+        "0x0114": {
+          "address_dec": 276,
+          "raw_u16": 285,
+          "raw_hex": "0x011D"
+        },
+        "0x0115": {
+          "address_dec": 277,
+          "raw_u16": 560,
+          "raw_hex": "0x0230"
+        },
+        "0x0116": {
+          "address_dec": 278,
+          "raw_u16": 1500,
+          "raw_hex": "0x05DC"
+        },
+        "0x0117": {
+          "address_dec": 279,
+          "raw_u16": 2000,
+          "raw_hex": "0x07D0"
+        },
+        "0x0204": {
+          "address_dec": 516,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0205": {
+          "address_dec": 517,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0206": {
+          "address_dec": 518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0207": {
+          "address_dec": 519,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x020F": {
+          "address_dec": 527,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0210": {
+          "address_dec": 528,
+          "raw_u16": 3,
+          "raw_hex": "0x0003"
+        },
+        "0x0211": {
+          "address_dec": 529,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0212": {
+          "address_dec": 530,
+          "raw_u16": 3950,
+          "raw_hex": "0x0F6E"
+        },
+        "0x0213": {
+          "address_dec": 531,
+          "raw_u16": 1210,
+          "raw_hex": "0x04BA"
+        },
+        "0x0214": {
+          "address_dec": 532,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0215": {
+          "address_dec": 533,
+          "raw_u16": 5998,
+          "raw_hex": "0x176E"
+        },
+        "0x0216": {
+          "address_dec": 534,
+          "raw_u16": 1200,
+          "raw_hex": "0x04B0"
+        },
+        "0x0218": {
+          "address_dec": 536,
+          "raw_u16": 6000,
+          "raw_hex": "0x1770"
+        },
+        "0x0219": {
+          "address_dec": 537,
+          "raw_u16": 155,
+          "raw_hex": "0x009B"
+        },
+        "0x021B": {
+          "address_dec": 539,
+          "raw_u16": 1820,
+          "raw_hex": "0x071C"
+        },
+        "0x021E": {
+          "address_dec": 542,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0220": {
+          "address_dec": 544,
+          "raw_u16": 430,
+          "raw_hex": "0x01AE"
+        },
+        "0x0221": {
+          "address_dec": 545,
+          "raw_u16": 441,
+          "raw_hex": "0x01B9"
+        },
+        "0x0222": {
+          "address_dec": 546,
+          "raw_u16": 405,
+          "raw_hex": "0x0195"
+        },
+        "0x0223": {
+          "address_dec": 547,
+          "raw_u16": 240,
+          "raw_hex": "0x00F0"
+        },
+        "0x0224": {
+          "address_dec": 548,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0228": {
+          "address_dec": 552,
+          "raw_u16": 1976,
+          "raw_hex": "0x07B8"
+        },
+        "0x0229": {
+          "address_dec": 553,
+          "raw_u16": 1974,
+          "raw_hex": "0x07B6"
+        },
+        "0x022A": {
+          "address_dec": 554,
+          "raw_u16": 1208,
+          "raw_hex": "0x04B8"
+        },
+        "0x022C": {
+          "address_dec": 556,
+          "raw_u16": 1201,
+          "raw_hex": "0x04B1"
+        },
+        "0x0230": {
+          "address_dec": 560,
+          "raw_u16": 140,
+          "raw_hex": "0x008C"
+        },
+        "0x0232": {
+          "address_dec": 562,
+          "raw_u16": 1650,
+          "raw_hex": "0x0672"
+        },
+        "0x0238": {
+          "address_dec": 568,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE003": {
+          "address_dec": 57347,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0xE037": {
+          "address_dec": 57399,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0xE201": {
+          "address_dec": 57857,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE215": {
+          "address_dec": 57877,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0xF02F": {
+          "address_dec": 61487,
+          "raw_u16": 312,
+          "raw_hex": "0x0138"
+        },
+        "0xF030": {
+          "address_dec": 61488,
+          "raw_u16": 225,
+          "raw_hex": "0x00E1"
+        },
+        "0xF031": {
+          "address_dec": 61489,
+          "raw_u16": 185,
+          "raw_hex": "0x00B9"
+        },
+        "0xF03E": {
+          "address_dec": 61502,
+          "raw_u16": 740,
+          "raw_hex": "0x02E4"
+        },
+        "0xF03F": {
+          "address_dec": 61503,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF04A": {
+          "address_dec": 61514,
+          "raw_u16": 2847,
+          "raw_hex": "0x0B1F"
+        },
+        "0xF04B": {
+          "address_dec": 61515,
+          "raw_u16": 112,
+          "raw_hex": "0x0070"
+        },
+        "0xF04D": {
+          "address_dec": 61517,
+          "raw_u16": 140,
+          "raw_hex": "0x008C"
+        },
+        "0xF04E": {
+          "address_dec": 61518,
+          "raw_u16": 85,
+          "raw_hex": "0x0055"
+        }
+      },
+      "group_payloads": {
+        "P1-R01": [
+          52,
+          512,
+          750,
+          290
+        ],
+        "P1-R02": [
+          0,
+          0,
+          0
+        ],
+        "P1-R03": [
+          0,
+          0,
+          0
+        ],
+        "P1-R04": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P1-R05": [
+          3
+        ],
+        "P1-R06": [
+          1210,
+          0,
+          5998,
+          1200
+        ],
+        "P1-R07": [
+          6000,
+          155
+        ],
+        "P1-R08": [
+          1820
+        ],
+        "P1-R09": [
+          441
+        ],
+        "P1-R10": [
+          1208
+        ],
+        "P1-R11": [
+          1201
+        ],
+        "P1-R12": [
+          140
+        ],
+        "P1-R13": [
+          1650
+        ],
+        "P1-R14": [
+          0
+        ],
+        "P1-R15": [
+          312,
+          225
+        ],
+        "P1-R16": [
+          140,
+          85
+        ],
+        "P2-D01": [
+          300,
+          156
+        ],
+        "P2-D02": [
+          0,
+          143
+        ],
+        "P2-D03": [
+          0
+        ],
+        "P2-D04": [
+          513
+        ],
+        "P2-D05": [
+          285,
+          560,
+          1500,
+          2000
+        ],
+        "P2-D06": [
+          0
+        ],
+        "P2-D07": [
+          0,
+          3950
+        ],
+        "P2-D08": [
+          0
+        ],
+        "P2-D09": [
+          430
+        ],
+        "P2-D10": [
+          405,
+          240,
+          0
+        ],
+        "P2-D11": [
+          1976,
+          1974
+        ],
+        "P2-D12": [
+          740,
+          0
+        ],
+        "P2-S01": [
+          4
+        ],
+        "P2-S02": [
+          125
+        ],
+        "P2-S03": [
+          110
+        ],
+        "P2-S04": [
+          1,
+          16000,
+          204
+        ],
+        "P2-S05": [
+          42290,
+          15408,
+          32306,
+          65333,
+          42285,
+          15409,
+          32305,
+          65325,
+          42289,
+          15413,
+          32288,
+          65329,
+          42288,
+          15418,
+          32307,
+          65328,
+          42298,
+          15408,
+          32304,
+          0
+        ],
+        "P2-S06": [
+          42323,
+          15449,
+          32334,
+          65364,
+          42312,
+          15405,
+          32339,
+          65360,
+          42313,
+          15409,
+          32310,
+          65355,
+          42285,
+          15408,
+          32304,
+          65328,
+          42289,
+          0,
+          0,
+          0
+        ],
+        "P2-S07": [
+          48
+        ],
+        "P2-S08": [
+          1
+        ],
+        "P2-S09": [
+          0
+        ],
+        "P2-S10": [
+          2
+        ],
+        "P2-S11": [
+          185
+        ],
+        "P2-S12": [
+          2847,
+          112
+        ]
+      }
+    },
+    {
+      "scenario_id": "S3_utility_zero_solar",
+      "title": "Utility operation with solar production at zero",
+      "description": "Grid bypass operation supplying 2,420 W split-phase load while AC utility charger supplies 30.0 A constant-voltage battery charge (-1,572 W net battery power).",
+      "fixture_status": "SYNTHETIC",
+      "slave_address": 1,
+      "registers": {
+        "0x000B": {
+          "address_dec": 11,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0014": {
+          "address_dec": 20,
+          "raw_u16": 125,
+          "raw_hex": "0x007D"
+        },
+        "0x0016": {
+          "address_dec": 22,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x001A": {
+          "address_dec": 26,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x001B": {
+          "address_dec": 27,
+          "raw_u16": 16000,
+          "raw_hex": "0x3E80"
+        },
+        "0x001C": {
+          "address_dec": 28,
+          "raw_u16": 204,
+          "raw_hex": "0x00CC"
+        },
+        "0x0021": {
+          "address_dec": 33,
+          "raw_u16": 42290,
+          "raw_hex": "0xA532"
+        },
+        "0x0022": {
+          "address_dec": 34,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0023": {
+          "address_dec": 35,
+          "raw_u16": 32306,
+          "raw_hex": "0x7E32"
+        },
+        "0x0024": {
+          "address_dec": 36,
+          "raw_u16": 65333,
+          "raw_hex": "0xFF35"
+        },
+        "0x0025": {
+          "address_dec": 37,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0026": {
+          "address_dec": 38,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x0027": {
+          "address_dec": 39,
+          "raw_u16": 32305,
+          "raw_hex": "0x7E31"
+        },
+        "0x0028": {
+          "address_dec": 40,
+          "raw_u16": 65325,
+          "raw_hex": "0xFF2D"
+        },
+        "0x0029": {
+          "address_dec": 41,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x002A": {
+          "address_dec": 42,
+          "raw_u16": 15413,
+          "raw_hex": "0x3C35"
+        },
+        "0x002B": {
+          "address_dec": 43,
+          "raw_u16": 32288,
+          "raw_hex": "0x7E20"
+        },
+        "0x002C": {
+          "address_dec": 44,
+          "raw_u16": 65329,
+          "raw_hex": "0xFF31"
+        },
+        "0x002D": {
+          "address_dec": 45,
+          "raw_u16": 42288,
+          "raw_hex": "0xA530"
+        },
+        "0x002E": {
+          "address_dec": 46,
+          "raw_u16": 15418,
+          "raw_hex": "0x3C3A"
+        },
+        "0x002F": {
+          "address_dec": 47,
+          "raw_u16": 32307,
+          "raw_hex": "0x7E33"
+        },
+        "0x0030": {
+          "address_dec": 48,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0031": {
+          "address_dec": 49,
+          "raw_u16": 42298,
+          "raw_hex": "0xA53A"
+        },
+        "0x0032": {
+          "address_dec": 50,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0033": {
+          "address_dec": 51,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0034": {
+          "address_dec": 52,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0035": {
+          "address_dec": 53,
+          "raw_u16": 42323,
+          "raw_hex": "0xA553"
+        },
+        "0x0036": {
+          "address_dec": 54,
+          "raw_u16": 15449,
+          "raw_hex": "0x3C59"
+        },
+        "0x0037": {
+          "address_dec": 55,
+          "raw_u16": 32334,
+          "raw_hex": "0x7E4E"
+        },
+        "0x0038": {
+          "address_dec": 56,
+          "raw_u16": 65364,
+          "raw_hex": "0xFF54"
+        },
+        "0x0039": {
+          "address_dec": 57,
+          "raw_u16": 42312,
+          "raw_hex": "0xA548"
+        },
+        "0x003A": {
+          "address_dec": 58,
+          "raw_u16": 15405,
+          "raw_hex": "0x3C2D"
+        },
+        "0x003B": {
+          "address_dec": 59,
+          "raw_u16": 32339,
+          "raw_hex": "0x7E53"
+        },
+        "0x003C": {
+          "address_dec": 60,
+          "raw_u16": 65360,
+          "raw_hex": "0xFF50"
+        },
+        "0x003D": {
+          "address_dec": 61,
+          "raw_u16": 42313,
+          "raw_hex": "0xA549"
+        },
+        "0x003E": {
+          "address_dec": 62,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x003F": {
+          "address_dec": 63,
+          "raw_u16": 32310,
+          "raw_hex": "0x7E36"
+        },
+        "0x0040": {
+          "address_dec": 64,
+          "raw_u16": 65355,
+          "raw_hex": "0xFF4B"
+        },
+        "0x0041": {
+          "address_dec": 65,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0042": {
+          "address_dec": 66,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0043": {
+          "address_dec": 67,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0044": {
+          "address_dec": 68,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0045": {
+          "address_dec": 69,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x0046": {
+          "address_dec": 70,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0047": {
+          "address_dec": 71,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0048": {
+          "address_dec": 72,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0100": {
+          "address_dec": 256,
+          "raw_u16": 35,
+          "raw_hex": "0x0023"
+        },
+        "0x0101": {
+          "address_dec": 257,
+          "raw_u16": 524,
+          "raw_hex": "0x020C"
+        },
+        "0x0102": {
+          "address_dec": 258,
+          "raw_u16": 65236,
+          "raw_hex": "0xFED4"
+        },
+        "0x0103": {
+          "address_dec": 259,
+          "raw_u16": 245,
+          "raw_hex": "0x00F5"
+        },
+        "0x0105": {
+          "address_dec": 261,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0106": {
+          "address_dec": 262,
+          "raw_u16": 105,
+          "raw_hex": "0x0069"
+        },
+        "0x0107": {
+          "address_dec": 263,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0108": {
+          "address_dec": 264,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0109": {
+          "address_dec": 265,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010B": {
+          "address_dec": 267,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0x010C": {
+          "address_dec": 268,
+          "raw_u16": 144,
+          "raw_hex": "0x0090"
+        },
+        "0x010E": {
+          "address_dec": 270,
+          "raw_u16": 1572,
+          "raw_hex": "0x0624"
+        },
+        "0x010F": {
+          "address_dec": 271,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0110": {
+          "address_dec": 272,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0111": {
+          "address_dec": 273,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0112": {
+          "address_dec": 274,
+          "raw_u16": 523,
+          "raw_hex": "0x020B"
+        },
+        "0x0114": {
+          "address_dec": 276,
+          "raw_u16": 240,
+          "raw_hex": "0x00F0"
+        },
+        "0x0115": {
+          "address_dec": 277,
+          "raw_u16": 560,
+          "raw_hex": "0x0230"
+        },
+        "0x0116": {
+          "address_dec": 278,
+          "raw_u16": 1500,
+          "raw_hex": "0x05DC"
+        },
+        "0x0117": {
+          "address_dec": 279,
+          "raw_u16": 2000,
+          "raw_hex": "0x07D0"
+        },
+        "0x0204": {
+          "address_dec": 516,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0205": {
+          "address_dec": 517,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0206": {
+          "address_dec": 518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0207": {
+          "address_dec": 519,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x020F": {
+          "address_dec": 527,
+          "raw_u16": 15,
+          "raw_hex": "0x000F"
+        },
+        "0x0210": {
+          "address_dec": 528,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0x0211": {
+          "address_dec": 529,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x0212": {
+          "address_dec": 530,
+          "raw_u16": 4020,
+          "raw_hex": "0x0FB4"
+        },
+        "0x0213": {
+          "address_dec": 531,
+          "raw_u16": 1204,
+          "raw_hex": "0x04B4"
+        },
+        "0x0214": {
+          "address_dec": 532,
+          "raw_u16": 205,
+          "raw_hex": "0x00CD"
+        },
+        "0x0215": {
+          "address_dec": 533,
+          "raw_u16": 6001,
+          "raw_hex": "0x1771"
+        },
+        "0x0216": {
+          "address_dec": 534,
+          "raw_u16": 1203,
+          "raw_hex": "0x04B3"
+        },
+        "0x0218": {
+          "address_dec": 536,
+          "raw_u16": 6001,
+          "raw_hex": "0x1771"
+        },
+        "0x0219": {
+          "address_dec": 537,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x021B": {
+          "address_dec": 539,
+          "raw_u16": 1300,
+          "raw_hex": "0x0514"
+        },
+        "0x021E": {
+          "address_dec": 542,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0220": {
+          "address_dec": 544,
+          "raw_u16": 362,
+          "raw_hex": "0x016A"
+        },
+        "0x0221": {
+          "address_dec": 545,
+          "raw_u16": 375,
+          "raw_hex": "0x0177"
+        },
+        "0x0222": {
+          "address_dec": 546,
+          "raw_u16": 350,
+          "raw_hex": "0x015E"
+        },
+        "0x0223": {
+          "address_dec": 547,
+          "raw_u16": 215,
+          "raw_hex": "0x00D7"
+        },
+        "0x0224": {
+          "address_dec": 548,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0228": {
+          "address_dec": 552,
+          "raw_u16": 2010,
+          "raw_hex": "0x07DA"
+        },
+        "0x0229": {
+          "address_dec": 553,
+          "raw_u16": 2010,
+          "raw_hex": "0x07DA"
+        },
+        "0x022A": {
+          "address_dec": 554,
+          "raw_u16": 1206,
+          "raw_hex": "0x04B6"
+        },
+        "0x022C": {
+          "address_dec": 556,
+          "raw_u16": 1205,
+          "raw_hex": "0x04B5"
+        },
+        "0x0230": {
+          "address_dec": 560,
+          "raw_u16": 95,
+          "raw_hex": "0x005F"
+        },
+        "0x0232": {
+          "address_dec": 562,
+          "raw_u16": 1120,
+          "raw_hex": "0x0460"
+        },
+        "0x0238": {
+          "address_dec": 568,
+          "raw_u16": 180,
+          "raw_hex": "0x00B4"
+        },
+        "0xE003": {
+          "address_dec": 57347,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0xE037": {
+          "address_dec": 57399,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0xE201": {
+          "address_dec": 57857,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE215": {
+          "address_dec": 57877,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0xF02F": {
+          "address_dec": 61487,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF030": {
+          "address_dec": 61488,
+          "raw_u16": 180,
+          "raw_hex": "0x00B4"
+        },
+        "0xF031": {
+          "address_dec": 61489,
+          "raw_u16": 186,
+          "raw_hex": "0x00BA"
+        },
+        "0xF03E": {
+          "address_dec": 61502,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF03F": {
+          "address_dec": 61503,
+          "raw_u16": 480,
+          "raw_hex": "0x01E0"
+        },
+        "0xF04A": {
+          "address_dec": 61514,
+          "raw_u16": 2847,
+          "raw_hex": "0x0B1F"
+        },
+        "0xF04B": {
+          "address_dec": 61515,
+          "raw_u16": 120,
+          "raw_hex": "0x0078"
+        },
+        "0xF04D": {
+          "address_dec": 61517,
+          "raw_u16": 45,
+          "raw_hex": "0x002D"
+        },
+        "0xF04E": {
+          "address_dec": 61518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        }
+      },
+      "group_payloads": {
+        "P1-R01": [
+          35,
+          524,
+          65236,
+          245
+        ],
+        "P1-R02": [
+          0,
+          0,
+          0
+        ],
+        "P1-R03": [
+          0,
+          0,
+          0
+        ],
+        "P1-R04": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P1-R05": [
+          2
+        ],
+        "P1-R06": [
+          1204,
+          205,
+          6001,
+          1203
+        ],
+        "P1-R07": [
+          6001,
+          110
+        ],
+        "P1-R08": [
+          1300
+        ],
+        "P1-R09": [
+          375
+        ],
+        "P1-R10": [
+          1206
+        ],
+        "P1-R11": [
+          1205
+        ],
+        "P1-R12": [
+          95
+        ],
+        "P1-R13": [
+          1120
+        ],
+        "P1-R14": [
+          180
+        ],
+        "P1-R15": [
+          0,
+          180
+        ],
+        "P1-R16": [
+          45,
+          0
+        ],
+        "P2-D01": [
+          300,
+          105
+        ],
+        "P2-D02": [
+          2,
+          144
+        ],
+        "P2-D03": [
+          1572
+        ],
+        "P2-D04": [
+          523
+        ],
+        "P2-D05": [
+          240,
+          560,
+          1500,
+          2000
+        ],
+        "P2-D06": [
+          15
+        ],
+        "P2-D07": [
+          1,
+          4020
+        ],
+        "P2-D08": [
+          300
+        ],
+        "P2-D09": [
+          362
+        ],
+        "P2-D10": [
+          350,
+          215,
+          0
+        ],
+        "P2-D11": [
+          2010,
+          2010
+        ],
+        "P2-D12": [
+          0,
+          480
+        ],
+        "P2-S01": [
+          4
+        ],
+        "P2-S02": [
+          125
+        ],
+        "P2-S03": [
+          110
+        ],
+        "P2-S04": [
+          1,
+          16000,
+          204
+        ],
+        "P2-S05": [
+          42290,
+          15408,
+          32306,
+          65333,
+          42285,
+          15409,
+          32305,
+          65325,
+          42289,
+          15413,
+          32288,
+          65329,
+          42288,
+          15418,
+          32307,
+          65328,
+          42298,
+          15408,
+          32304,
+          0
+        ],
+        "P2-S06": [
+          42323,
+          15449,
+          32334,
+          65364,
+          42312,
+          15405,
+          32339,
+          65360,
+          42313,
+          15409,
+          32310,
+          65355,
+          42285,
+          15408,
+          32304,
+          65328,
+          42289,
+          0,
+          0,
+          0
+        ],
+        "P2-S07": [
+          48
+        ],
+        "P2-S08": [
+          1
+        ],
+        "P2-S09": [
+          0
+        ],
+        "P2-S10": [
+          2
+        ],
+        "P2-S11": [
+          186
+        ],
+        "P2-S12": [
+          2847,
+          120
+        ]
+      }
+    },
+    {
+      "scenario_id": "S4_standby",
+      "title": "Standby operation",
+      "description": "Idle standby mode with zero output power, full battery (100% SOC), grid-connection countdown active (60 s), and sub-zero ambient temperature (-2.5 degC) exercising signed16 temperature decoding.",
+      "fixture_status": "SYNTHETIC",
+      "slave_address": 1,
+      "registers": {
+        "0x000B": {
+          "address_dec": 11,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0014": {
+          "address_dec": 20,
+          "raw_u16": 125,
+          "raw_hex": "0x007D"
+        },
+        "0x0016": {
+          "address_dec": 22,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x001A": {
+          "address_dec": 26,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x001B": {
+          "address_dec": 27,
+          "raw_u16": 16000,
+          "raw_hex": "0x3E80"
+        },
+        "0x001C": {
+          "address_dec": 28,
+          "raw_u16": 204,
+          "raw_hex": "0x00CC"
+        },
+        "0x0021": {
+          "address_dec": 33,
+          "raw_u16": 42290,
+          "raw_hex": "0xA532"
+        },
+        "0x0022": {
+          "address_dec": 34,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0023": {
+          "address_dec": 35,
+          "raw_u16": 32306,
+          "raw_hex": "0x7E32"
+        },
+        "0x0024": {
+          "address_dec": 36,
+          "raw_u16": 65333,
+          "raw_hex": "0xFF35"
+        },
+        "0x0025": {
+          "address_dec": 37,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0026": {
+          "address_dec": 38,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x0027": {
+          "address_dec": 39,
+          "raw_u16": 32305,
+          "raw_hex": "0x7E31"
+        },
+        "0x0028": {
+          "address_dec": 40,
+          "raw_u16": 65325,
+          "raw_hex": "0xFF2D"
+        },
+        "0x0029": {
+          "address_dec": 41,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x002A": {
+          "address_dec": 42,
+          "raw_u16": 15413,
+          "raw_hex": "0x3C35"
+        },
+        "0x002B": {
+          "address_dec": 43,
+          "raw_u16": 32288,
+          "raw_hex": "0x7E20"
+        },
+        "0x002C": {
+          "address_dec": 44,
+          "raw_u16": 65329,
+          "raw_hex": "0xFF31"
+        },
+        "0x002D": {
+          "address_dec": 45,
+          "raw_u16": 42288,
+          "raw_hex": "0xA530"
+        },
+        "0x002E": {
+          "address_dec": 46,
+          "raw_u16": 15418,
+          "raw_hex": "0x3C3A"
+        },
+        "0x002F": {
+          "address_dec": 47,
+          "raw_u16": 32307,
+          "raw_hex": "0x7E33"
+        },
+        "0x0030": {
+          "address_dec": 48,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0031": {
+          "address_dec": 49,
+          "raw_u16": 42298,
+          "raw_hex": "0xA53A"
+        },
+        "0x0032": {
+          "address_dec": 50,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0033": {
+          "address_dec": 51,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0034": {
+          "address_dec": 52,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0035": {
+          "address_dec": 53,
+          "raw_u16": 42323,
+          "raw_hex": "0xA553"
+        },
+        "0x0036": {
+          "address_dec": 54,
+          "raw_u16": 15449,
+          "raw_hex": "0x3C59"
+        },
+        "0x0037": {
+          "address_dec": 55,
+          "raw_u16": 32334,
+          "raw_hex": "0x7E4E"
+        },
+        "0x0038": {
+          "address_dec": 56,
+          "raw_u16": 65364,
+          "raw_hex": "0xFF54"
+        },
+        "0x0039": {
+          "address_dec": 57,
+          "raw_u16": 42312,
+          "raw_hex": "0xA548"
+        },
+        "0x003A": {
+          "address_dec": 58,
+          "raw_u16": 15405,
+          "raw_hex": "0x3C2D"
+        },
+        "0x003B": {
+          "address_dec": 59,
+          "raw_u16": 32339,
+          "raw_hex": "0x7E53"
+        },
+        "0x003C": {
+          "address_dec": 60,
+          "raw_u16": 65360,
+          "raw_hex": "0xFF50"
+        },
+        "0x003D": {
+          "address_dec": 61,
+          "raw_u16": 42313,
+          "raw_hex": "0xA549"
+        },
+        "0x003E": {
+          "address_dec": 62,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x003F": {
+          "address_dec": 63,
+          "raw_u16": 32310,
+          "raw_hex": "0x7E36"
+        },
+        "0x0040": {
+          "address_dec": 64,
+          "raw_u16": 65355,
+          "raw_hex": "0xFF4B"
+        },
+        "0x0041": {
+          "address_dec": 65,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0042": {
+          "address_dec": 66,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0043": {
+          "address_dec": 67,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0044": {
+          "address_dec": 68,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0045": {
+          "address_dec": 69,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x0046": {
+          "address_dec": 70,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0047": {
+          "address_dec": 71,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0048": {
+          "address_dec": 72,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0100": {
+          "address_dec": 256,
+          "raw_u16": 100,
+          "raw_hex": "0x0064"
+        },
+        "0x0101": {
+          "address_dec": 257,
+          "raw_u16": 540,
+          "raw_hex": "0x021C"
+        },
+        "0x0102": {
+          "address_dec": 258,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0103": {
+          "address_dec": 259,
+          "raw_u16": 85,
+          "raw_hex": "0x0055"
+        },
+        "0x0105": {
+          "address_dec": 261,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0106": {
+          "address_dec": 262,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0107": {
+          "address_dec": 263,
+          "raw_u16": 1200,
+          "raw_hex": "0x04B0"
+        },
+        "0x0108": {
+          "address_dec": 264,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0109": {
+          "address_dec": 265,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010B": {
+          "address_dec": 267,
+          "raw_u16": 8,
+          "raw_hex": "0x0008"
+        },
+        "0x010C": {
+          "address_dec": 268,
+          "raw_u16": 144,
+          "raw_hex": "0x0090"
+        },
+        "0x010E": {
+          "address_dec": 270,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010F": {
+          "address_dec": 271,
+          "raw_u16": 1185,
+          "raw_hex": "0x04A1"
+        },
+        "0x0110": {
+          "address_dec": 272,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0111": {
+          "address_dec": 273,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0112": {
+          "address_dec": 274,
+          "raw_u16": 540,
+          "raw_hex": "0x021C"
+        },
+        "0x0114": {
+          "address_dec": 276,
+          "raw_u16": 82,
+          "raw_hex": "0x0052"
+        },
+        "0x0115": {
+          "address_dec": 277,
+          "raw_u16": 560,
+          "raw_hex": "0x0230"
+        },
+        "0x0116": {
+          "address_dec": 278,
+          "raw_u16": 1500,
+          "raw_hex": "0x05DC"
+        },
+        "0x0117": {
+          "address_dec": 279,
+          "raw_u16": 2000,
+          "raw_hex": "0x07D0"
+        },
+        "0x0204": {
+          "address_dec": 516,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0205": {
+          "address_dec": 517,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0206": {
+          "address_dec": 518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0207": {
+          "address_dec": 519,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x020F": {
+          "address_dec": 527,
+          "raw_u16": 60,
+          "raw_hex": "0x003C"
+        },
+        "0x0210": {
+          "address_dec": 528,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x0211": {
+          "address_dec": 529,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0212": {
+          "address_dec": 530,
+          "raw_u16": 540,
+          "raw_hex": "0x021C"
+        },
+        "0x0213": {
+          "address_dec": 531,
+          "raw_u16": 1200,
+          "raw_hex": "0x04B0"
+        },
+        "0x0214": {
+          "address_dec": 532,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0215": {
+          "address_dec": 533,
+          "raw_u16": 6000,
+          "raw_hex": "0x1770"
+        },
+        "0x0216": {
+          "address_dec": 534,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0218": {
+          "address_dec": 536,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0219": {
+          "address_dec": 537,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x021B": {
+          "address_dec": 539,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x021E": {
+          "address_dec": 542,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0220": {
+          "address_dec": 544,
+          "raw_u16": 50,
+          "raw_hex": "0x0032"
+        },
+        "0x0221": {
+          "address_dec": 545,
+          "raw_u16": 52,
+          "raw_hex": "0x0034"
+        },
+        "0x0222": {
+          "address_dec": 546,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0x0223": {
+          "address_dec": 547,
+          "raw_u16": 65511,
+          "raw_hex": "0xFFE7"
+        },
+        "0x0224": {
+          "address_dec": 548,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0228": {
+          "address_dec": 552,
+          "raw_u16": 270,
+          "raw_hex": "0x010E"
+        },
+        "0x0229": {
+          "address_dec": 553,
+          "raw_u16": 270,
+          "raw_hex": "0x010E"
+        },
+        "0x022A": {
+          "address_dec": 554,
+          "raw_u16": 1200,
+          "raw_hex": "0x04B0"
+        },
+        "0x022C": {
+          "address_dec": 556,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0230": {
+          "address_dec": 560,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0232": {
+          "address_dec": 562,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0238": {
+          "address_dec": 568,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE003": {
+          "address_dec": 57347,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0xE037": {
+          "address_dec": 57399,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0xE201": {
+          "address_dec": 57857,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE215": {
+          "address_dec": 57877,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0xF02F": {
+          "address_dec": 61487,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF030": {
+          "address_dec": 61488,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF031": {
+          "address_dec": 61489,
+          "raw_u16": 187,
+          "raw_hex": "0x00BB"
+        },
+        "0xF03E": {
+          "address_dec": 61502,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF03F": {
+          "address_dec": 61503,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF04A": {
+          "address_dec": 61514,
+          "raw_u16": 2847,
+          "raw_hex": "0x0B1F"
+        },
+        "0xF04B": {
+          "address_dec": 61515,
+          "raw_u16": 120,
+          "raw_hex": "0x0078"
+        },
+        "0xF04D": {
+          "address_dec": 61517,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xF04E": {
+          "address_dec": 61518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        }
+      },
+      "group_payloads": {
+        "P1-R01": [
+          100,
+          540,
+          0,
+          85
+        ],
+        "P1-R02": [
+          1200,
+          0,
+          0
+        ],
+        "P1-R03": [
+          1185,
+          0,
+          0
+        ],
+        "P1-R04": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P1-R05": [
+          1
+        ],
+        "P1-R06": [
+          1200,
+          0,
+          6000,
+          0
+        ],
+        "P1-R07": [
+          0,
+          0
+        ],
+        "P1-R08": [
+          0
+        ],
+        "P1-R09": [
+          52
+        ],
+        "P1-R10": [
+          1200
+        ],
+        "P1-R11": [
+          0
+        ],
+        "P1-R12": [
+          0
+        ],
+        "P1-R13": [
+          0
+        ],
+        "P1-R14": [
+          0
+        ],
+        "P1-R15": [
+          0,
+          0
+        ],
+        "P1-R16": [
+          0,
+          0
+        ],
+        "P2-D01": [
+          300,
+          300
+        ],
+        "P2-D02": [
+          8,
+          144
+        ],
+        "P2-D03": [
+          0
+        ],
+        "P2-D04": [
+          540
+        ],
+        "P2-D05": [
+          82,
+          560,
+          1500,
+          2000
+        ],
+        "P2-D06": [
+          60
+        ],
+        "P2-D07": [
+          0,
+          540
+        ],
+        "P2-D08": [
+          0
+        ],
+        "P2-D09": [
+          50
+        ],
+        "P2-D10": [
+          48,
+          65511,
+          0
+        ],
+        "P2-D11": [
+          270,
+          270
+        ],
+        "P2-D12": [
+          0,
+          0
+        ],
+        "P2-S01": [
+          4
+        ],
+        "P2-S02": [
+          125
+        ],
+        "P2-S03": [
+          110
+        ],
+        "P2-S04": [
+          1,
+          16000,
+          204
+        ],
+        "P2-S05": [
+          42290,
+          15408,
+          32306,
+          65333,
+          42285,
+          15409,
+          32305,
+          65325,
+          42289,
+          15413,
+          32288,
+          65329,
+          42288,
+          15418,
+          32307,
+          65328,
+          42298,
+          15408,
+          32304,
+          0
+        ],
+        "P2-S06": [
+          42323,
+          15449,
+          32334,
+          65364,
+          42312,
+          15405,
+          32339,
+          65360,
+          42313,
+          15409,
+          32310,
+          65355,
+          42285,
+          15408,
+          32304,
+          65328,
+          42289,
+          0,
+          0,
+          0
+        ],
+        "P2-S07": [
+          48
+        ],
+        "P2-S08": [
+          1
+        ],
+        "P2-S09": [
+          0
+        ],
+        "P2-S10": [
+          2
+        ],
+        "P2-S11": [
+          187
+        ],
+        "P2-S12": [
+          2847,
+          120
+        ]
+      }
+    },
+    {
+      "scenario_id": "S5_active_fault",
+      "title": "Active fault indication",
+      "description": "Protective fault state in split-phase standby with non-zero fault slots (0x0204=1, 0x0205=20), zero AC output, high heatsink temperatures (up to 82.1 degC), and manufacturer password status (4).",
+      "fixture_status": "SYNTHETIC",
+      "slave_address": 1,
+      "registers": {
+        "0x000B": {
+          "address_dec": 11,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0014": {
+          "address_dec": 20,
+          "raw_u16": 125,
+          "raw_hex": "0x007D"
+        },
+        "0x0016": {
+          "address_dec": 22,
+          "raw_u16": 110,
+          "raw_hex": "0x006E"
+        },
+        "0x001A": {
+          "address_dec": 26,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x001B": {
+          "address_dec": 27,
+          "raw_u16": 16000,
+          "raw_hex": "0x3E80"
+        },
+        "0x001C": {
+          "address_dec": 28,
+          "raw_u16": 204,
+          "raw_hex": "0x00CC"
+        },
+        "0x0021": {
+          "address_dec": 33,
+          "raw_u16": 42290,
+          "raw_hex": "0xA532"
+        },
+        "0x0022": {
+          "address_dec": 34,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0023": {
+          "address_dec": 35,
+          "raw_u16": 32306,
+          "raw_hex": "0x7E32"
+        },
+        "0x0024": {
+          "address_dec": 36,
+          "raw_u16": 65333,
+          "raw_hex": "0xFF35"
+        },
+        "0x0025": {
+          "address_dec": 37,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0026": {
+          "address_dec": 38,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x0027": {
+          "address_dec": 39,
+          "raw_u16": 32305,
+          "raw_hex": "0x7E31"
+        },
+        "0x0028": {
+          "address_dec": 40,
+          "raw_u16": 65325,
+          "raw_hex": "0xFF2D"
+        },
+        "0x0029": {
+          "address_dec": 41,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x002A": {
+          "address_dec": 42,
+          "raw_u16": 15413,
+          "raw_hex": "0x3C35"
+        },
+        "0x002B": {
+          "address_dec": 43,
+          "raw_u16": 32288,
+          "raw_hex": "0x7E20"
+        },
+        "0x002C": {
+          "address_dec": 44,
+          "raw_u16": 65329,
+          "raw_hex": "0xFF31"
+        },
+        "0x002D": {
+          "address_dec": 45,
+          "raw_u16": 42288,
+          "raw_hex": "0xA530"
+        },
+        "0x002E": {
+          "address_dec": 46,
+          "raw_u16": 15418,
+          "raw_hex": "0x3C3A"
+        },
+        "0x002F": {
+          "address_dec": 47,
+          "raw_u16": 32307,
+          "raw_hex": "0x7E33"
+        },
+        "0x0030": {
+          "address_dec": 48,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0031": {
+          "address_dec": 49,
+          "raw_u16": 42298,
+          "raw_hex": "0xA53A"
+        },
+        "0x0032": {
+          "address_dec": 50,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0033": {
+          "address_dec": 51,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0034": {
+          "address_dec": 52,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0035": {
+          "address_dec": 53,
+          "raw_u16": 42323,
+          "raw_hex": "0xA553"
+        },
+        "0x0036": {
+          "address_dec": 54,
+          "raw_u16": 15449,
+          "raw_hex": "0x3C59"
+        },
+        "0x0037": {
+          "address_dec": 55,
+          "raw_u16": 32334,
+          "raw_hex": "0x7E4E"
+        },
+        "0x0038": {
+          "address_dec": 56,
+          "raw_u16": 65364,
+          "raw_hex": "0xFF54"
+        },
+        "0x0039": {
+          "address_dec": 57,
+          "raw_u16": 42312,
+          "raw_hex": "0xA548"
+        },
+        "0x003A": {
+          "address_dec": 58,
+          "raw_u16": 15405,
+          "raw_hex": "0x3C2D"
+        },
+        "0x003B": {
+          "address_dec": 59,
+          "raw_u16": 32339,
+          "raw_hex": "0x7E53"
+        },
+        "0x003C": {
+          "address_dec": 60,
+          "raw_u16": 65360,
+          "raw_hex": "0xFF50"
+        },
+        "0x003D": {
+          "address_dec": 61,
+          "raw_u16": 42313,
+          "raw_hex": "0xA549"
+        },
+        "0x003E": {
+          "address_dec": 62,
+          "raw_u16": 15409,
+          "raw_hex": "0x3C31"
+        },
+        "0x003F": {
+          "address_dec": 63,
+          "raw_u16": 32310,
+          "raw_hex": "0x7E36"
+        },
+        "0x0040": {
+          "address_dec": 64,
+          "raw_u16": 65355,
+          "raw_hex": "0xFF4B"
+        },
+        "0x0041": {
+          "address_dec": 65,
+          "raw_u16": 42285,
+          "raw_hex": "0xA52D"
+        },
+        "0x0042": {
+          "address_dec": 66,
+          "raw_u16": 15408,
+          "raw_hex": "0x3C30"
+        },
+        "0x0043": {
+          "address_dec": 67,
+          "raw_u16": 32304,
+          "raw_hex": "0x7E30"
+        },
+        "0x0044": {
+          "address_dec": 68,
+          "raw_u16": 65328,
+          "raw_hex": "0xFF30"
+        },
+        "0x0045": {
+          "address_dec": 69,
+          "raw_u16": 42289,
+          "raw_hex": "0xA531"
+        },
+        "0x0046": {
+          "address_dec": 70,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0047": {
+          "address_dec": 71,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0048": {
+          "address_dec": 72,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0100": {
+          "address_dec": 256,
+          "raw_u16": 18,
+          "raw_hex": "0x0012"
+        },
+        "0x0101": {
+          "address_dec": 257,
+          "raw_u16": 472,
+          "raw_hex": "0x01D8"
+        },
+        "0x0102": {
+          "address_dec": 258,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0103": {
+          "address_dec": 259,
+          "raw_u16": 465,
+          "raw_hex": "0x01D1"
+        },
+        "0x0105": {
+          "address_dec": 261,
+          "raw_u16": 300,
+          "raw_hex": "0x012C"
+        },
+        "0x0106": {
+          "address_dec": 262,
+          "raw_u16": 54,
+          "raw_hex": "0x0036"
+        },
+        "0x0107": {
+          "address_dec": 263,
+          "raw_u16": 3500,
+          "raw_hex": "0x0DAC"
+        },
+        "0x0108": {
+          "address_dec": 264,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0109": {
+          "address_dec": 265,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010B": {
+          "address_dec": 267,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010C": {
+          "address_dec": 268,
+          "raw_u16": 145,
+          "raw_hex": "0x0091"
+        },
+        "0x010E": {
+          "address_dec": 270,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x010F": {
+          "address_dec": 271,
+          "raw_u16": 3520,
+          "raw_hex": "0x0DC0"
+        },
+        "0x0110": {
+          "address_dec": 272,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0111": {
+          "address_dec": 273,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0112": {
+          "address_dec": 274,
+          "raw_u16": 472,
+          "raw_hex": "0x01D8"
+        },
+        "0x0114": {
+          "address_dec": 276,
+          "raw_u16": 460,
+          "raw_hex": "0x01CC"
+        },
+        "0x0115": {
+          "address_dec": 277,
+          "raw_u16": 560,
+          "raw_hex": "0x0230"
+        },
+        "0x0116": {
+          "address_dec": 278,
+          "raw_u16": 1500,
+          "raw_hex": "0x05DC"
+        },
+        "0x0117": {
+          "address_dec": 279,
+          "raw_u16": 2000,
+          "raw_hex": "0x07D0"
+        },
+        "0x0204": {
+          "address_dec": 516,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x0205": {
+          "address_dec": 517,
+          "raw_u16": 20,
+          "raw_hex": "0x0014"
+        },
+        "0x0206": {
+          "address_dec": 518,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0207": {
+          "address_dec": 519,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x020F": {
+          "address_dec": 527,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0210": {
+          "address_dec": 528,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0x0211": {
+          "address_dec": 529,
+          "raw_u16": 4,
+          "raw_hex": "0x0004"
+        },
+        "0x0212": {
+          "address_dec": 530,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0213": {
+          "address_dec": 531,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0214": {
+          "address_dec": 532,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0215": {
+          "address_dec": 533,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0216": {
+          "address_dec": 534,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0218": {
+          "address_dec": 536,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0219": {
+          "address_dec": 537,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x021B": {
+          "address_dec": 539,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x021E": {
+          "address_dec": 542,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0220": {
+          "address_dec": 544,
+          "raw_u16": 784,
+          "raw_hex": "0x0310"
+        },
+        "0x0221": {
+          "address_dec": 545,
+          "raw_u16": 821,
+          "raw_hex": "0x0335"
+        },
+        "0x0222": {
+          "address_dec": 546,
+          "raw_u16": 769,
+          "raw_hex": "0x0301"
+        },
+        "0x0223": {
+          "address_dec": 547,
+          "raw_u16": 410,
+          "raw_hex": "0x019A"
+        },
+        "0x0224": {
+          "address_dec": 548,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0228": {
+          "address_dec": 552,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0229": {
+          "address_dec": 553,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x022A": {
+          "address_dec": 554,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x022C": {
+          "address_dec": 556,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0230": {
+          "address_dec": 560,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0232": {
+          "address_dec": 562,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0x0238": {
+          "address_dec": 568,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE003": {
+          "address_dec": 57347,
+          "raw_u16": 48,
+          "raw_hex": "0x0030"
+        },
+        "0xE037": {
+          "address_dec": 57399,
+          "raw_u16": 1,
+          "raw_hex": "0x0001"
+        },
+        "0xE201": {
+          "address_dec": 57857,
+          "raw_u16": 0,
+          "raw_hex": "0x0000"
+        },
+        "0xE215": {
+          "address_dec": 57877,
+          "raw_u16": 2,
+          "raw_hex": "0x0002"
+        },
+        "0xF02F": {
+          "address_dec": 61487,
+          "raw_u16": 121,
+          "raw_hex": "0x0079"
+        },
+        "0xF030": {
+          "address_dec": 61488,
+          "raw_u16": 153,
+          "raw_hex": "0x0099"
+        },
+        "0xF031": {
+          "address_dec": 61489,
+          "raw_u16": 187,
+          "raw_hex": "0x00BB"
+        },
+        "0xF03E": {
+          "address_dec": 61502,
+          "raw_u16": 410,
+          "raw_hex": "0x019A"
+        },
+        "0xF03F": {
+          "address_dec": 61503,
+          "raw_u16": 45,
+          "raw_hex": "0x002D"
+        },
+        "0xF04A": {
+          "address_dec": 61514,
+          "raw_u16": 2854,
+          "raw_hex": "0x0B26"
+        },
+        "0xF04B": {
+          "address_dec": 61515,
+          "raw_u16": 121,
+          "raw_hex": "0x0079"
+        },
+        "0xF04D": {
+          "address_dec": 61517,
+          "raw_u16": 52,
+          "raw_hex": "0x0034"
+        },
+        "0xF04E": {
+          "address_dec": 61518,
+          "raw_u16": 104,
+          "raw_hex": "0x0068"
+        }
+      },
+      "group_payloads": {
+        "P1-R01": [
+          18,
+          472,
+          0,
+          465
+        ],
+        "P1-R02": [
+          3500,
+          0,
+          0
+        ],
+        "P1-R03": [
+          3520,
+          0,
+          0
+        ],
+        "P1-R04": [
+          1,
+          20,
+          0,
+          0
+        ],
+        "P1-R05": [
+          1
+        ],
+        "P1-R06": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P1-R07": [
+          0,
+          0
+        ],
+        "P1-R08": [
+          0
+        ],
+        "P1-R09": [
+          821
+        ],
+        "P1-R10": [
+          0
+        ],
+        "P1-R11": [
+          0
+        ],
+        "P1-R12": [
+          0
+        ],
+        "P1-R13": [
+          0
+        ],
+        "P1-R14": [
+          0
+        ],
+        "P1-R15": [
+          121,
+          153
+        ],
+        "P1-R16": [
+          52,
+          104
+        ],
+        "P2-D01": [
+          300,
+          54
+        ],
+        "P2-D02": [
+          0,
+          145
+        ],
+        "P2-D03": [
+          0
+        ],
+        "P2-D04": [
+          472
+        ],
+        "P2-D05": [
+          460,
+          560,
+          1500,
+          2000
+        ],
+        "P2-D06": [
+          0
+        ],
+        "P2-D07": [
+          4,
+          0
+        ],
+        "P2-D08": [
+          0
+        ],
+        "P2-D09": [
+          784
+        ],
+        "P2-D10": [
+          769,
+          410,
+          0
+        ],
+        "P2-D11": [
+          0,
+          0
+        ],
+        "P2-D12": [
+          410,
+          45
+        ],
+        "P2-S01": [
+          4
+        ],
+        "P2-S02": [
+          125
+        ],
+        "P2-S03": [
+          110
+        ],
+        "P2-S04": [
+          1,
+          16000,
+          204
+        ],
+        "P2-S05": [
+          42290,
+          15408,
+          32306,
+          65333,
+          42285,
+          15409,
+          32305,
+          65325,
+          42289,
+          15413,
+          32288,
+          65329,
+          42288,
+          15418,
+          32307,
+          65328,
+          42298,
+          15408,
+          32304,
+          0
+        ],
+        "P2-S06": [
+          42323,
+          15449,
+          32334,
+          65364,
+          42312,
+          15405,
+          32339,
+          65360,
+          42313,
+          15409,
+          32310,
+          65355,
+          42285,
+          15408,
+          32304,
+          65328,
+          42289,
+          0,
+          0,
+          0
+        ],
+        "P2-S07": [
+          48
+        ],
+        "P2-S08": [
+          1
+        ],
+        "P2-S09": [
+          0
+        ],
+        "P2-S10": [
+          2
+        ],
+        "P2-S11": [
+          187
+        ],
+        "P2-S12": [
+          2854,
+          121
+        ]
+      }
+    }
+  ]
+}

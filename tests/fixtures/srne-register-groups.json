@@ -1,0 +1,1967 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_status": "SYNTHETIC_OFFLINE_FIXTURE_NOT_PHYSICAL_INVERTER_DATA",
+  "protocol_specification": {
+    "document": "SRNE_Modbus_Monitoring_Protocol_V2.04_English.pdf",
+    "slave_address": 1,
+    "serial_parameters": "9600,N,8,1",
+    "function_code": "0x03 (FC03 Read Holding Registers only)",
+    "max_words_per_request": 32,
+    "register_word_width_bits": 16,
+    "word_byte_order": "big_endian (high byte first, low byte second)",
+    "crc_byte_order": "little_endian (low byte first, high byte second)",
+    "string_encoding": "lower_8_bits_per_word_ASCII"
+  },
+  "summary": {
+    "total_groups": 40,
+    "phase1_groups": 16,
+    "phase2_groups": 24,
+    "total_unique_register_words": 107,
+    "phase1_register_words": 32,
+    "phase2_register_words": 75,
+    "rw_registers_read_only_fc03": [
+      "0xE003",
+      "0xE037",
+      "0xE201",
+      "0xE215"
+    ],
+    "excluded_classes": [
+      "gray_text_invalid_registers",
+      "deferred_ambiguous_or_unsupported_registers",
+      "fc06_fc10_write_operations",
+      "prohibited_control_registers"
+    ]
+  },
+  "groups": [
+    {
+      "group_id": "P1-R01",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r01_battery",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0100",
+      "start_address_dec": 256,
+      "register_count": 4,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_battery_soc",
+        "srne_battery_voltage",
+        "srne_battery_current",
+        "srne_battery_temperature",
+        "srne_battery_net_power",
+        "srne_battery_charging_power",
+        "srne_battery_discharging_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0100",
+          "address_dec": 256,
+          "official_name": "Battery SOC",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0101",
+          "address_dec": 257,
+          "official_name": "Battery Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0102",
+          "address_dec": 258,
+          "official_name": "Battery Current",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0103",
+          "address_dec": 259,
+          "official_name": "Battery Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R02",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r02_pv1",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0107",
+      "start_address_dec": 263,
+      "register_count": 3,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_pv1_voltage",
+        "srne_pv1_current",
+        "srne_pv1_power",
+        "srne_pv_total_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0107",
+          "address_dec": 263,
+          "official_name": "PV Panel 1 Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0108",
+          "address_dec": 264,
+          "official_name": "PV Panel 1 Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0109",
+          "address_dec": 265,
+          "official_name": "PV Panel 1 Power",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "W",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R03",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r03_pv2",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x010F",
+      "start_address_dec": 271,
+      "register_count": 3,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_pv2_voltage",
+        "srne_pv2_current",
+        "srne_pv2_power",
+        "srne_pv_total_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x010F",
+          "address_dec": 271,
+          "official_name": "PV Panel 2 Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0110",
+          "address_dec": 272,
+          "official_name": "PV Panel 2 Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0111",
+          "address_dec": 273,
+          "official_name": "PV Panel 2 Power",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "W",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R04",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r04_faults",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0204",
+      "start_address_dec": 516,
+      "register_count": 4,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_fault_status"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0204",
+          "address_dec": 516,
+          "official_name": "Current Fault Codes",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0205",
+          "address_dec": 517,
+          "official_name": "Current Fault Codes",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0206",
+          "address_dec": 518,
+          "official_name": "Current Fault Codes",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0207",
+          "address_dec": 519,
+          "official_name": "Current Fault Codes",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R05",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r05_operating_mode",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0210",
+      "start_address_dec": 528,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_operating_mode"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0210",
+          "address_dec": 528,
+          "official_name": "Current Operating Status",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R06",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r06_grid_out_l1",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0213",
+      "start_address_dec": 531,
+      "register_count": 4,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_grid_l1_voltage",
+        "srne_grid_l1_current",
+        "srne_grid_frequency",
+        "srne_output_l1_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0213",
+          "address_dec": 531,
+          "official_name": "Grid Phase-A Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0214",
+          "address_dec": 532,
+          "official_name": "Grid Phase-A Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0215",
+          "address_dec": 533,
+          "official_name": "Grid Frequency",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.01",
+          "unit": "Hz",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0216",
+          "address_dec": 534,
+          "official_name": "Inverter Phase-A Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R07",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r07_out_freq_l1_i",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0218",
+      "start_address_dec": 536,
+      "register_count": 2,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_output_frequency",
+        "srne_output_l1_current"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0218",
+          "address_dec": 536,
+          "official_name": "Inverter Frequency",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.01",
+          "unit": "Hz",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0219",
+          "address_dec": 537,
+          "official_name": "Load Phase-A Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R08",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r08_out_l1_p",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x021B",
+      "start_address_dec": 539,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_output_l1_power",
+        "srne_output_total_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x021B",
+          "address_dec": 539,
+          "official_name": "Load Phase-A Active Power",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "1",
+          "unit": "W",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R09",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r09_inv_temp",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0221",
+      "start_address_dec": 545,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_inverter_temperature"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0221",
+          "address_dec": 545,
+          "official_name": "Heatsink B Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R10",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r10_grid_l2_v",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x022A",
+      "start_address_dec": 554,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_grid_l2_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x022A",
+          "address_dec": 554,
+          "official_name": "Grid Phase-B Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R11",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r11_out_l2_v",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x022C",
+      "start_address_dec": 556,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_output_l2_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x022C",
+          "address_dec": 556,
+          "official_name": "Inverter Phase-B Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R12",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r12_out_l2_i",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0230",
+      "start_address_dec": 560,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_output_l2_current"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0230",
+          "address_dec": 560,
+          "official_name": "Load Phase-B Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R13",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r13_out_l2_p",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0232",
+      "start_address_dec": 562,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_output_l2_power",
+        "srne_output_total_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0232",
+          "address_dec": 562,
+          "official_name": "Load Phase-B Active Power",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "1",
+          "unit": "W",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R14",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r14_grid_l2_i",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0238",
+      "start_address_dec": 568,
+      "register_count": 1,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_grid_l2_current"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0238",
+          "address_dec": 568,
+          "official_name": "Grid Phase-B Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R15",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r15_energy_pv_load",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xF02F",
+      "start_address_dec": 61487,
+      "register_count": 2,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_solar_energy_daily",
+        "srne_load_energy_daily"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xF02F",
+          "address_dec": 61487,
+          "official_name": "PV Energy Generation Today",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "kWh",
+          "pdf_page": "14"
+        },
+        {
+          "address_hex": "0xF030",
+          "address_dec": 61488,
+          "official_name": "Load Energy Consumption Today",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "kWh",
+          "pdf_page": "14"
+        }
+      ]
+    },
+    {
+      "group_id": "P1-R16",
+      "phase_tier": "phase1",
+      "firmware_group_id": "srne_p1_r16_energy_bat",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xF04D",
+      "start_address_dec": 61517,
+      "register_count": 2,
+      "poll_interval_s": 10,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_battery_charge_energy_daily",
+        "srne_battery_discharge_energy_daily"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xF04D",
+          "address_dec": 61517,
+          "official_name": "Battery Charging Energy Today (kWh)",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "kWh",
+          "pdf_page": "14"
+        },
+        {
+          "address_hex": "0xF04E",
+          "address_dec": 61518,
+          "official_name": "Battery Discharging Energy Today (kWh)",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "kWh",
+          "pdf_page": "14"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D01",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D01",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0105",
+      "start_address_dec": 261,
+      "register_count": 2,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_battery_rated_capacity",
+        "srne_battery_remaining_capacity"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0105",
+          "address_dec": 261,
+          "official_name": "Battery Rated Capacity",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "AH",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0106",
+          "address_dec": 262,
+          "official_name": "Remaining Battery Capacity",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "AH",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D02",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D02",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x010B",
+      "start_address_dec": 267,
+      "register_count": 2,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_battery_charging_status",
+        "srne_battery_cycle_count"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x010B",
+          "address_dec": 267,
+          "official_name": "Battery Charging Status",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x010C",
+          "address_dec": 268,
+          "official_name": "Battery Charge/Discharge Cycle Count",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "NOT STATED",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D03",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D03",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x010E",
+      "start_address_dec": 270,
+      "register_count": 1,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_total_charging_power"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x010E",
+          "address_dec": 270,
+          "official_name": "Total Charging Power",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "W",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D04",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D04",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0112",
+      "start_address_dec": 274,
+      "register_count": 1,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_bms_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0112",
+          "address_dec": 274,
+          "official_name": "Battery BMS Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D05",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D05",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0114",
+      "start_address_dec": 276,
+      "register_count": 4,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_bms_temperature",
+        "srne_bms_charge_voltage_limit",
+        "srne_bms_charge_current_limit",
+        "srne_bms_discharge_current_limit"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0114",
+          "address_dec": 276,
+          "official_name": "Battery BMS Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0115",
+          "address_dec": 277,
+          "official_name": "BMS Charge Voltage Limit",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0116",
+          "address_dec": 278,
+          "official_name": "BMS Charge Current Limit",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0117",
+          "address_dec": 279,
+          "official_name": "BMS Discharge Current Limit",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D06",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D06",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x020F",
+      "start_address_dec": 527,
+      "register_count": 1,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_grid_connection_countdown"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x020F",
+          "address_dec": 527,
+          "official_name": "Grid-Connection Countdown",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "s",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D07",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D07",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0211",
+      "start_address_dec": 529,
+      "register_count": 2,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_password_protection_status",
+        "srne_total_dc_bus_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0211",
+          "address_dec": 529,
+          "official_name": "Password Protection Status Flag",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0212",
+          "address_dec": 530,
+          "official_name": "Total DC Bus Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D08",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D08",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x021E",
+      "start_address_dec": 542,
+      "register_count": 1,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_utility_charging_current"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x021E",
+          "address_dec": 542,
+          "official_name": "Utility Charging Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D09",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D09",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0220",
+      "start_address_dec": 544,
+      "register_count": 1,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_heatsink_a_temperature"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0220",
+          "address_dec": 544,
+          "official_name": "Heatsink A Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D10",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D10",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0222",
+      "start_address_dec": 546,
+      "register_count": 3,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_heatsink_c_temperature",
+        "srne_ambient_temperature",
+        "srne_pv_charging_current"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0222",
+          "address_dec": 546,
+          "official_name": "Heatsink C Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0223",
+          "address_dec": 547,
+          "official_name": "Ambient Temperature",
+          "official_access": "R",
+          "data_type": "int16",
+          "signedness": "Signed",
+          "scaling": "0.1",
+          "unit": "°C",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0224",
+          "address_dec": 548,
+          "official_name": "PV Charging Current",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "A",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D11",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D11",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0228",
+      "start_address_dec": 552,
+      "register_count": 2,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_positive_dc_bus_voltage",
+        "srne_negative_dc_bus_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0228",
+          "address_dec": 552,
+          "official_name": "Positive DC Bus Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        },
+        {
+          "address_hex": "0x0229",
+          "address_dec": 553,
+          "official_name": "Negative DC Bus Voltage",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "0.1",
+          "unit": "V",
+          "pdf_page": "10"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-D12",
+      "phase_tier": "phase2_dynamic",
+      "firmware_group_id": "D12",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xF03E",
+      "start_address_dec": 61502,
+      "register_count": 2,
+      "poll_interval_s": 30,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_inverter_operating_time_today",
+        "srne_bypass_operating_time_today"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xF03E",
+          "address_dec": 61502,
+          "official_name": "Inverter Operating Time Today",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "min",
+          "pdf_page": "14"
+        },
+        {
+          "address_hex": "0xF03F",
+          "address_dec": 61503,
+          "official_name": "Bypass Operating Time Today",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "min",
+          "pdf_page": "14"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S01",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S01",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x000B",
+      "start_address_dec": 11,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_product_type"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x000B",
+          "address_dec": 11,
+          "official_name": "Product Type",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S02",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S02",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0014",
+      "start_address_dec": 20,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_software_version_app"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0014",
+          "address_dec": 20,
+          "official_name": "Software Version",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S03",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S03",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0016",
+      "start_address_dec": 22,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_hardware_version_control_board"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0016",
+          "address_dec": 22,
+          "official_name": "Hardware Version",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S04",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S04",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x001A",
+      "start_address_dec": 26,
+      "register_count": 3,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_device_address",
+        "srne_model_code",
+        "srne_protocol_version"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x001A",
+          "address_dec": 26,
+          "official_name": "Controller/Device Address",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x001B",
+          "address_dec": 27,
+          "official_name": "Model Code",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x001C",
+          "address_dec": 28,
+          "official_name": "RS485 Protocol Version",
+          "official_access": "R",
+          "data_type": "uint16 word array / structured block; not a scalar",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S05",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S05",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0021",
+      "start_address_dec": 33,
+      "register_count": 20,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_software_build_time"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0021",
+          "address_dec": 33,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0022",
+          "address_dec": 34,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0023",
+          "address_dec": 35,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0024",
+          "address_dec": 36,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0025",
+          "address_dec": 37,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0026",
+          "address_dec": 38,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0027",
+          "address_dec": 39,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0028",
+          "address_dec": 40,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0029",
+          "address_dec": 41,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002A",
+          "address_dec": 42,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002B",
+          "address_dec": 43,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002C",
+          "address_dec": 44,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002D",
+          "address_dec": 45,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002E",
+          "address_dec": 46,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x002F",
+          "address_dec": 47,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0030",
+          "address_dec": 48,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0031",
+          "address_dec": 49,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0032",
+          "address_dec": 50,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0033",
+          "address_dec": 51,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0034",
+          "address_dec": 52,
+          "official_name": "Software Build Time",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S06",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S06",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0x0035",
+      "start_address_dec": 53,
+      "register_count": 20,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_product_serial_number"
+      ],
+      "registers": [
+        {
+          "address_hex": "0x0035",
+          "address_dec": 53,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0036",
+          "address_dec": 54,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0037",
+          "address_dec": 55,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0038",
+          "address_dec": 56,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0039",
+          "address_dec": 57,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003A",
+          "address_dec": 58,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003B",
+          "address_dec": 59,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003C",
+          "address_dec": 60,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003D",
+          "address_dec": 61,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003E",
+          "address_dec": 62,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x003F",
+          "address_dec": 63,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0040",
+          "address_dec": 64,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0041",
+          "address_dec": 65,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0042",
+          "address_dec": 66,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0043",
+          "address_dec": 67,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0044",
+          "address_dec": 68,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0045",
+          "address_dec": 69,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0046",
+          "address_dec": 70,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0047",
+          "address_dec": 71,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        },
+        {
+          "address_hex": "0x0048",
+          "address_dec": 72,
+          "official_name": "Product Serial Number String",
+          "official_access": "R",
+          "data_type": "string; lower 8 bits per word; character encoding unspecified",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "9"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S07",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S07",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xE003",
+      "start_address_dec": 57347,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RW_read_only_FC03",
+      "target_entities": [
+        "srne_battery_rated_voltage"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xE003",
+          "address_dec": 57347,
+          "official_name": "Battery Rated Voltage (Read Only)",
+          "official_access": "RW",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "V",
+          "pdf_page": "11"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S08",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S08",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xE037",
+      "start_address_dec": 57399,
+      "register_count": 1,
+      "poll_interval_s": 300,
+      "access_policy": "RW_read_only_FC03",
+      "target_entities": [
+        "srne_configured_operating_mode"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xE037",
+          "address_dec": 57399,
+          "official_name": "Operating Mode",
+          "official_access": "RW",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "12"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S09",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S09",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xE201",
+      "start_address_dec": 57857,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RW_read_only_FC03",
+      "target_entities": [
+        "srne_parallel_operation_mode"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xE201",
+          "address_dec": 57857,
+          "official_name": "Parallel Operation Mode",
+          "official_access": "RW",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "-",
+          "pdf_page": "12"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S10",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S10",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xE215",
+      "start_address_dec": 57877,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RW_read_only_FC03",
+      "target_entities": [
+        "srne_bms_enable_mode"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xE215",
+          "address_dec": 57877,
+          "official_name": "BMS Enable",
+          "official_access": "RW",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "NOT STATED",
+          "pdf_page": "13"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S11",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S11",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xF031",
+      "start_address_dec": 61489,
+      "register_count": 1,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_total_operating_days"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xF031",
+          "address_dec": 61489,
+          "official_name": "Total Operating Days",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "d",
+          "pdf_page": "14"
+        }
+      ]
+    },
+    {
+      "group_id": "P2-S12",
+      "phase_tier": "phase2_static",
+      "firmware_group_id": "S12",
+      "function_code": 3,
+      "function_code_hex": "0x03",
+      "slave_address": 1,
+      "start_address_hex": "0xF04A",
+      "start_address_dec": 61514,
+      "register_count": 2,
+      "poll_interval_s": 3600,
+      "access_policy": "RO",
+      "target_entities": [
+        "srne_cumulative_inverter_operating_time",
+        "srne_cumulative_bypass_operating_time"
+      ],
+      "registers": [
+        {
+          "address_hex": "0xF04A",
+          "address_dec": 61514,
+          "official_name": "Cumulative Inverter Operating Time",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "h",
+          "pdf_page": "14"
+        },
+        {
+          "address_hex": "0xF04B",
+          "address_dec": 61515,
+          "official_name": "Cumulative Bypass Operating Time",
+          "official_access": "R",
+          "data_type": "uint16",
+          "signedness": "Unsigned",
+          "scaling": "1",
+          "unit": "h",
+          "pdf_page": "14"
+        }
+      ]
+    }
+  ]
+}
