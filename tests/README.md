@@ -68,7 +68,7 @@ Press `Ctrl+C` for graceful shutdown (or type `q` in `--interactive` mode).
 
 ### Interactive Console Commands (`--interactive`)
 
-When `--interactive` is enabled, the simulator accepts operator commands without interrupting active Modbus RTU serving or reopening the serial port:
+When `--interactive` is enabled, the simulator accepts operator commands without interrupting active Modbus RTU serving or reopening the serial port. Operating scenario selection and communication failure injection remain independent:
 
 | Command | Action |
 | --- | --- |
@@ -77,9 +77,21 @@ When `--interactive` is enabled, the simulator accepts operator commands without
 | `3` | Switch active snapshot to `S3_utility_zero_solar` |
 | `4` | Switch active snapshot to `S4_standby` |
 | `5` | Switch active snapshot to `S5_active_fault` |
-| `s` | Display active scenario, description, device address, serial config, coverage, switch count, and elapsed runtime |
+| `s` | Display active scenario, description, device address, serial config, coverage, switch count, elapsed runtime, and failure injection counters |
+| `n` | Restore normal communication (clear active failure injection; alias for `f normal`) |
+| `f` / `f status` | Display active failure injection mode, target groups, and counters |
+| `f list` | List approved group aliases (`bms`, `phase1`, `phase2`, `phase2_dynamic`, `phase2_static`, `all`) and all 40 FC03 group IDs |
+| `f normal` | Restore normal communication without restarting or reopening the serial port |
+| `f timeout` | Inject complete response timeout (silent simulator) for all FC03 requests |
+| `f gtimeout <groups>` | Inject timeout only on selected approved groups (e.g., `f gtimeout bms`, `f gtimeout P2-D04,P2-D05`) |
+| `f exc <groups> [code]` | Inject Modbus exception frame (`0x01`–`0x0B`, default `0x02`) on selected groups |
+| `f crc [groups]` | Corrupt the final 2 CRC-16 bytes on encoded RTU responses globally or for `[groups]` |
+| `f trunc [groups]` | Truncate the final 3 bytes of encoded RTU response frames globally or for `[groups]` |
+| `f groups <groups>` | Update target groups for active selective/wire-level failure modes |
 | `h` | Display interactive command help |
 | `q` | Gracefully shut down the simulator |
+
+> **Failure Injection & Read-Only Safety**: Normal communication is always the default (`FailureMode.NORMAL`). CRC corruption (`f crc`) and frame truncation (`f trunc`) mutate the **encoded Modbus RTU wire bytes** produced by PyModbus `FramerRTU.buildFrame` while leaving the underlying synthetic register snapshots untouched. Strict FC03-only read-only enforcement executes *before* failure injection, so write requests (`FC05/06/15/16/22/23`) and unsupported function codes are rejected with `0x01` (`ILLEGAL_FUNCTION`) across every failure mode.
 
 > **Atomicity Note (Single-Response vs. Polling Sweep)**: Switching scenarios atomically replaces the immutable active register snapshot reference (`ActiveSnapshot`) in memory. Each individual Modbus FC03 response is guaranteed to read from a single consistent scenario snapshot. However, atomicity does **not** span an entire multi-request ESPHome polling sweep — if a scenario switch occurs mid-sweep, Home Assistant may temporarily display mixed values across register groups until subsequent polls complete.
 
@@ -105,12 +117,12 @@ When `--interactive` is enabled, the simulator accepts operator commands without
 
 ### Test Layers
 
-- **Application-level tests** (`TestFixtureLoadingAndValidation`, `TestReadOnlyContextApplicationLevel`, `TestRuntimeScenarioControlsApplicationLevel`, `TestCLIAndNoSerialAccess`): validate JSON fixture loading, error handling, direct `SRNEReadOnlyContext` gap/quantity/immutability rules, atomic snapshot switching, console command handling (`1`-`5`, `s`, `h`, `q`, invalid commands, repeated selection), and CLI flags (`--interactive` included) with PySerial/serial-transport patched to fail if called.
-- **Protocol-level RTU wire tests** (`TestProtocolLevelRTUWireFrames`, `TestProtocolLevelRuntimeSwitchingRTU`): exercise PyModbus `FramerRTU`, `DecodePDU`, `SRNEModbusSerialServer`, and `SRNERequestHandler` over an in-memory `asyncio.Transport` double with full Modbus RTU CRC-16 encoding/decoding, verifying all `40` groups × `5` scenarios (`200` static round-trips + `200` live post-switch round-trips), exceptions (`0x01`, `0x02`, `0x03`), write rejections (`FC05/06/15/16/22/23`), unsupported FCs (`FC01/02/04/07/09/17`), concurrent non-blocking async console switching, and EOF graceful shutdown.
+- **Application-level tests** (`TestFixtureLoadingAndValidation`, `TestReadOnlyContextApplicationLevel`, `TestRuntimeScenarioControlsApplicationLevel`, `TestFailureInjectionApplicationLevel`, `TestCLIAndNoSerialAccess`): validate JSON fixture loading, error handling, direct `SRNEReadOnlyContext` gap/quantity/immutability rules, atomic snapshot switching, group/alias resolution, failure & console command handling, and CLI flags with PySerial/serial-transport patched to fail if called.
+- **Protocol-level RTU wire tests** (`TestProtocolLevelRTUWireFrames`, `TestProtocolLevelRuntimeSwitchingRTU`, `TestProtocolLevelFailureInjectionRTU`): exercise PyModbus `FramerRTU`, `DecodePDU`, `SRNEModbusSerialServer`, and `SRNERequestHandler` over an in-memory `asyncio.Transport` double with full Modbus RTU CRC-16 encoding/decoding, verifying all `40` groups × `5` scenarios (`200` static + `200` live post-switch round-trips), exceptions (`0x01`, `0x02`, `0x03`), write rejections (`FC05/06/15/16/22/23`), unsupported FCs, complete silence, selective BMS timeout isolation, selective Modbus exceptions, wire-level CRC corruption and truncation, runtime recovery without restart, read-only enforcement across all 6 modes, and graceful shutdown.
 
 ---
 
-## Known Limitations (Scope of SRNE-04E-F)
+## Known Limitations (Scope of SRNE-04E-G)
 
-- Does not yet support timeout injection, malformed RTU frame injection, or dynamic fault injection (planned for later tasks).
-- Physical COM-port RS485 wire verification remains pending USB-RS485 hardware setup.
+- Failure injection modes are controlled manually via `--interactive` rather than automated probabilistic/scheduled fault scripts.
+- Physical USB-RS485 adapter delivery and live COM-port RS485 wire validation remain pending.

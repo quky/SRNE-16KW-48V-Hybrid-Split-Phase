@@ -19,6 +19,7 @@ import threading
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, TextIO
@@ -69,6 +70,46 @@ INTERACTIVE_SCENARIO_KEYS: MappingProxyType[str, str] = MappingProxyType({
     "4": "S4_standby",
     "5": "S5_active_fault",
 })
+
+DEFAULT_INJECTED_EXCEPTION_CODE = int(ExcCodes.ILLEGAL_ADDRESS)
+DEFAULT_TRUNCATE_BYTES = 3
+ALLOWED_INJECTED_EXCEPTION_CODES = frozenset(range(0x01, 0x0C))
+BMS_DIAGNOSTIC_GROUP_IDS = ("P2-D04", "P2-D05")
+
+
+class FailureMode(str, Enum):
+    """Supported simulator communication failure injection modes."""
+
+    NORMAL = "normal"
+    SILENT_TIMEOUT = "silent_timeout"
+    SELECTIVE_TIMEOUT = "selective_timeout"
+    SELECTIVE_EXCEPTION = "selective_exception"
+    INVALID_CRC = "invalid_crc"
+    TRUNCATED_FRAME = "truncated_frame"
+
+
+@dataclass(frozen=True)
+class FailureInjectionConfig:
+    """Immutable snapshot of active communication failure injection configuration."""
+
+    mode: FailureMode = FailureMode.NORMAL
+    target_groups: frozenset[str] = frozenset()
+    exception_code: int = DEFAULT_INJECTED_EXCEPTION_CODE
+    truncate_bytes: int = DEFAULT_TRUNCATE_BYTES
+
+
+@dataclass(frozen=True)
+class FailureCounters:
+    """Immutable counters tracking injected communication failures and recoveries."""
+
+    total_injected: int = 0
+    silent_timeouts: int = 0
+    selective_timeouts: int = 0
+    selective_exceptions: int = 0
+    invalid_crc_frames: int = 0
+    truncated_frames: int = 0
+    recoveries: int = 0
+
 
 _EXPRESSION_LABELS: dict[int, str] = {
     ExcCodes.ILLEGAL_FUNCTION: "ILLEGAL_FUNCTION (0x01)",
@@ -533,10 +574,238 @@ def _format_addr_count(addr: int | None, count: int | None) -> tuple[str, str]:
     return addr_str, count_str
 
 
+class FailureInjectionController:
+    """Thread-safe/asyncio-safe controller for failure injection independent of scenarios."""
+
+    def __init__(
+        self,
+        groups: tuple[RegisterGroupSpec, ...],
+        *,
+        logger: logging.Logger | None = None,
+    ) -> None:
+        self._groups = groups
+        self._logger = logger or logging.getLogger(LOGGER_NAME)
+        self._canonical_groups: dict[str, str] = {g.group_id.lower(): g.group_id for g in groups}
+        self._group_specs: dict[str, RegisterGroupSpec] = {g.group_id: g for g in groups}
+        self._aliases: dict[str, frozenset[str]] = {
+            "bms": frozenset(gid for gid in BMS_DIAGNOSTIC_GROUP_IDS if gid in self._group_specs),
+            "phase1": frozenset(g.group_id for g in groups if g.phase_tier == "phase1"),
+            "phase2": frozenset(g.group_id for g in groups if g.phase_tier.startswith("phase2")),
+            "phase2_dynamic": frozenset(g.group_id for g in groups if g.phase_tier == "phase2_dynamic"),
+            "phase2_static": frozenset(g.group_id for g in groups if g.phase_tier == "phase2_static"),
+            "all": frozenset(g.group_id for g in groups),
+        }
+        self._config = FailureInjectionConfig()
+        self._counters = FailureCounters()
+
+    @property
+    def config(self) -> FailureInjectionConfig:
+        """Current immutable failure injection configuration."""
+        return self._config
+
+    @property
+    def counters(self) -> FailureCounters:
+        """Current immutable failure counters."""
+        return self._counters
+
+    @property
+    def is_active(self) -> bool:
+        """Return True if any non-normal failure injection mode is active."""
+        return self._config.mode != FailureMode.NORMAL
+
+    def resolve_group_tokens(self, tokens_spec: str | Sequence[str]) -> frozenset[str]:
+        """Resolve comma/space-separated approved group IDs or aliases cleanly."""
+        raw_tokens = (
+            tokens_spec.replace(",", " ").split()
+            if isinstance(tokens_spec, str)
+            else [tok for item in tokens_spec for tok in item.replace(",", " ").split()]
+        )
+        if not raw_tokens:
+            raise ValueError("At least one approved register group ID or alias must be specified")
+        resolved: set[str] = set()
+        for raw in raw_tokens:
+            key = raw.strip().lower()
+            if key in self._aliases:
+                resolved.update(self._aliases[key])
+            elif key in self._canonical_groups:
+                resolved.add(self._canonical_groups[key])
+            else:
+                raise ValueError(
+                    f"Unknown register group or alias {raw!r}. Use 'f list' for approved groups."
+                )
+        return frozenset(resolved)
+
+    def set_mode(
+        self,
+        mode: FailureMode,
+        *,
+        target_groups: frozenset[str] = frozenset(),
+        exception_code: int = DEFAULT_INJECTED_EXCEPTION_CODE,
+        truncate_bytes: int = DEFAULT_TRUNCATE_BYTES,
+    ) -> tuple[FailureInjectionConfig, FailureInjectionConfig]:
+        """Atomically update active failure injection mode."""
+        if not isinstance(mode, FailureMode):
+            raise ValueError(f"Unsupported failure mode: {mode!r}")
+        for gid in target_groups:
+            if gid not in self._group_specs:
+                raise ValueError(f"Unapproved target group ID: {gid!r}")
+        if exception_code not in ALLOWED_INJECTED_EXCEPTION_CODES:
+            raise ValueError(
+                f"Exception code 0x{exception_code:02X} outside documented SRNE range 0x01..0x0B"
+            )
+        if truncate_bytes < 1:
+            raise ValueError("truncate_bytes must be >= 1")
+
+        if mode in (FailureMode.NORMAL, FailureMode.SILENT_TIMEOUT):
+            normalized_groups: frozenset[str] = frozenset()
+        elif mode in (FailureMode.SELECTIVE_TIMEOUT, FailureMode.SELECTIVE_EXCEPTION):
+            if not target_groups:
+                raise ValueError(f"Failure mode {mode.value!r} requires one or more target groups")
+            normalized_groups = frozenset(target_groups)
+        else:
+            normalized_groups = frozenset(target_groups)
+
+        prev = self._config
+        new_cfg = FailureInjectionConfig(
+            mode=mode,
+            target_groups=normalized_groups,
+            exception_code=exception_code,
+            truncate_bytes=truncate_bytes,
+        )
+        self._config = new_cfg
+        if prev.mode != FailureMode.NORMAL and new_cfg.mode == FailureMode.NORMAL:
+            c = self._counters
+            self._counters = FailureCounters(
+                total_injected=c.total_injected,
+                silent_timeouts=c.silent_timeouts,
+                selective_timeouts=c.selective_timeouts,
+                selective_exceptions=c.selective_exceptions,
+                invalid_crc_frames=c.invalid_crc_frames,
+                truncated_frames=c.truncated_frames,
+                recoveries=c.recoveries + 1,
+            )
+        return prev, new_cfg
+
+    def restore_normal(self) -> tuple[FailureInjectionConfig, FailureInjectionConfig]:
+        """Restore normal Modbus RTU communication without restarting."""
+        return self.set_mode(FailureMode.NORMAL)
+
+    def update_target_groups(
+        self, target_groups: frozenset[str]
+    ) -> tuple[FailureInjectionConfig, FailureInjectionConfig]:
+        """Update target groups for an active selective or wire-level failure mode."""
+        cur = self._config
+        if cur.mode in (FailureMode.NORMAL, FailureMode.SILENT_TIMEOUT):
+            raise ValueError(
+                f"Cannot set target groups while failure mode is {cur.mode.value!r}; select a selective/wire fault first."
+            )
+        return self.set_mode(
+            cur.mode,
+            target_groups=target_groups,
+            exception_code=cur.exception_code,
+            truncate_bytes=cur.truncate_bytes,
+        )
+
+    def match_fc03_request(self, address: int, count: int) -> tuple[FailureInjectionConfig, tuple[str, ...]]:
+        """Evaluate whether the current failure mode applies to an approved FC03 read."""
+        cfg = self._config
+        if cfg.mode in (FailureMode.NORMAL, FailureMode.SILENT_TIMEOUT):
+            return cfg, ()
+        if cfg.mode in (FailureMode.INVALID_CRC, FailureMode.TRUNCATED_FRAME) and not cfg.target_groups:
+            return cfg, ()
+        req_end = address + count
+        matched = tuple(
+            sorted(
+                gid
+                for gid in cfg.target_groups
+                if (spec := self._group_specs.get(gid)) is not None
+                and max(address, spec.start_address) < min(req_end, spec.start_address + spec.register_count)
+            )
+        )
+        return cfg, matched
+
+    def record_injected(self, mode: FailureMode) -> FailureCounters:
+        """Increment failure injection counters atomically."""
+        c = self._counters
+        self._counters = FailureCounters(
+            total_injected=c.total_injected + 1,
+            silent_timeouts=c.silent_timeouts + (1 if mode == FailureMode.SILENT_TIMEOUT else 0),
+            selective_timeouts=c.selective_timeouts + (1 if mode == FailureMode.SELECTIVE_TIMEOUT else 0),
+            selective_exceptions=c.selective_exceptions + (1 if mode == FailureMode.SELECTIVE_EXCEPTION else 0),
+            invalid_crc_frames=c.invalid_crc_frames + (1 if mode == FailureMode.INVALID_CRC else 0),
+            truncated_frames=c.truncated_frames + (1 if mode == FailureMode.TRUNCATED_FRAME else 0),
+            recoveries=c.recoveries,
+        )
+        return self._counters
+
+    def format_failure_status(self) -> str:
+        """Format active failure configuration and counters for operator inspection."""
+        cfg = self._config
+        cnt = self._counters
+        if cfg.mode == FailureMode.NORMAL:
+            targets_str = "none (normal communication)"
+        elif not cfg.target_groups:
+            targets_str = "ALL approved FC03 requests (global)"
+        else:
+            targets_str = ", ".join(sorted(cfg.target_groups))
+        lines = [
+            "--- Failure Injection Status ---",
+            f"Active Failure Mode  : {cfg.mode.value}",
+            f"Target Groups        : {targets_str}",
+        ]
+        if cfg.mode == FailureMode.SELECTIVE_EXCEPTION:
+            lines.append(f"Injected Exception   : 0x{cfg.exception_code:02X} ({cfg.exception_code})")
+        if cfg.mode == FailureMode.TRUNCATED_FRAME:
+            lines.append(f"Truncation Amount    : last {cfg.truncate_bytes} RTU wire bytes")
+        lines.extend([
+            f"Injected Total       : {cnt.total_injected}",
+            f"  Silent Timeouts    : {cnt.silent_timeouts}",
+            f"  Selective Timeouts : {cnt.selective_timeouts}",
+            f"  Selective Excepts  : {cnt.selective_exceptions}",
+            f"  Invalid CRC Frames : {cnt.invalid_crc_frames}",
+            f"  Truncated Frames   : {cnt.truncated_frames}",
+            f"Restorations/Recover : {cnt.recoveries}",
+            "--------------------------------",
+        ])
+        return "\n".join(lines)
+
+    def format_group_list(self) -> str:
+        """Format supported group aliases and all 40 approved FC03 group IDs."""
+        p1 = ", ".join(g.group_id for g in self._groups if g.phase_tier == "phase1")
+        p2d = ", ".join(g.group_id for g in self._groups if g.phase_tier == "phase2_dynamic")
+        p2s = ", ".join(g.group_id for g in self._groups if g.phase_tier == "phase2_static")
+        return "\n".join([
+            "Approved Failure Target Groups & Aliases:",
+            f"  Aliases       : bms ({', '.join(BMS_DIAGNOSTIC_GROUP_IDS)}), phase1, phase2, phase2_dynamic, phase2_static, all",
+            f"  Phase 1 (16)  : {p1}",
+            f"  Phase 2 Dyn   : {p2d}",
+            f"  Phase 2 Stat  : {p2s}",
+        ])
+
+
 class SRNERequestHandler(ServerRequestHandler):
     """Protocol-level request handler enforcing strict FC03-only Modbus RTU behavior."""
 
     server: SRNEModbusSerialServer
+
+    def _send_corrupted_crc(self, response: ModbusPDU) -> tuple[int, int]:
+        """Encode authentic RTU response and corrupt its final 2 CRC-16 bytes on the wire."""
+        packet = self.framer.buildFrame(self.trace_pdu(True, response))
+        orig_crc = (int(packet[-2]) << 8) | int(packet[-1])
+        corrupted = bytearray(packet)
+        corrupted[-2] ^= 0xFF
+        corrupted[-1] ^= 0xFF
+        sent_crc = (int(corrupted[-2]) << 8) | int(corrupted[-1])
+        self.low_level_send(self.trace_packet(True, bytes(corrupted)), addr=self.last_addr)
+        return orig_crc, sent_crc
+
+    def _send_truncated_frame(self, response: ModbusPDU, truncate_bytes: int) -> tuple[int, int]:
+        """Encode authentic RTU response and transmit a truncated byte prefix on the wire."""
+        packet = self.framer.buildFrame(self.trace_pdu(True, response))
+        full_len = len(packet)
+        cut_len = max(1, min(full_len - 1, full_len - truncate_bytes))
+        self.low_level_send(self.trace_packet(True, packet[:cut_len]), addr=self.last_addr)
+        return cut_len, full_len
 
     def callback_data(self, data: bytes, addr: tuple | None = None) -> int:
         """Handle incoming RTU bytes, rejecting unregistered function codes with 0x01 if addressed to us."""
@@ -564,7 +833,7 @@ class SRNERequestHandler(ServerRequestHandler):
         return used
 
     async def handle_request(self, pdu: ModbusPDU) -> None:
-        """Process one decoded Modbus PDU with strict FC03-only guard and detailed logging."""
+        """Process one decoded Modbus PDU with strict FC03-only guard and optional fault injection."""
         dev_id = pdu.dev_id
         fc = pdu.function_code
         addr, count = _extract_request_bounds(pdu)
@@ -582,6 +851,7 @@ class SRNERequestHandler(ServerRequestHandler):
             )
             return
 
+        # Strict FC03-only guard executes BEFORE any failure injection mode.
         if fc != 3:
             reason = "WRITE_REJECTED_READ_ONLY" if fc in WRITE_FUNCTION_CODES else "UNSUPPORTED_FUNCTION_CODE"
             self.server.logger.warning(
@@ -633,26 +903,99 @@ class SRNERequestHandler(ServerRequestHandler):
                 count_str,
                 exc_label,
             )
-        else:
-            regs = list(getattr(response, "registers", []))
-            self.server.logger.info(
-                "Modbus request OK dev=%d fc=0x%02X (%d) start=%s count=%s outcome=OK",
+            self.server_send(response, self.last_addr)
+            return
+
+        assert isinstance(addr, int) and isinstance(count, int)
+        fc_ctl = self.server.failure_controller
+        cfg, matched_groups = fc_ctl.match_fc03_request(addr, count)
+
+        if cfg.mode == FailureMode.SILENT_TIMEOUT:
+            fc_ctl.record_injected(FailureMode.SILENT_TIMEOUT)
+            self.server.logger.warning(
+                "Modbus failure INJECTED dev=%d fc=0x03 (3) start=%s count=%s mode=SILENT_TIMEOUT (no reply sent)",
                 dev_id,
-                fc,
-                fc,
                 addr_str,
                 count_str,
             )
-            self.server.logger.debug(
-                "Modbus response raw words dev=%d fc=0x%02X start=%s count=%d hex=%s dec=%s",
-                dev_id,
-                fc,
-                addr_str,
-                len(regs),
-                [f"0x{w:04X}" for w in regs],
-                regs,
-            )
+            return
 
+        if cfg.mode == FailureMode.SELECTIVE_TIMEOUT and matched_groups:
+            fc_ctl.record_injected(FailureMode.SELECTIVE_TIMEOUT)
+            self.server.logger.warning(
+                "Modbus failure INJECTED dev=%d fc=0x03 (3) start=%s count=%s mode=SELECTIVE_TIMEOUT groups=%s (no reply sent)",
+                dev_id,
+                addr_str,
+                count_str,
+                ",".join(matched_groups),
+            )
+            return
+
+        if cfg.mode == FailureMode.SELECTIVE_EXCEPTION and matched_groups:
+            fc_ctl.record_injected(FailureMode.SELECTIVE_EXCEPTION)
+            inj_exc = ExceptionResponse(
+                3,
+                cfg.exception_code,
+                device_id=dev_id,
+                transaction=pdu.transaction_id,
+            )
+            self.server.logger.warning(
+                "Modbus failure INJECTED dev=%d fc=0x03 (3) start=%s count=%s mode=SELECTIVE_EXCEPTION groups=%s exception=0x%02X",
+                dev_id,
+                addr_str,
+                count_str,
+                ",".join(matched_groups),
+                cfg.exception_code,
+            )
+            self.server_send(inj_exc, self.last_addr)
+            return
+
+        if cfg.mode == FailureMode.INVALID_CRC and (not cfg.target_groups or matched_groups):
+            fc_ctl.record_injected(FailureMode.INVALID_CRC)
+            orig_crc, sent_crc = self._send_corrupted_crc(response)
+            self.server.logger.warning(
+                "Modbus failure INJECTED dev=%d fc=0x03 (3) start=%s count=%s mode=INVALID_CRC groups=%s orig_crc=0x%04X sent_crc=0x%04X",
+                dev_id,
+                addr_str,
+                count_str,
+                ",".join(matched_groups) if matched_groups else "ALL",
+                orig_crc,
+                sent_crc,
+            )
+            return
+
+        if cfg.mode == FailureMode.TRUNCATED_FRAME and (not cfg.target_groups or matched_groups):
+            fc_ctl.record_injected(FailureMode.TRUNCATED_FRAME)
+            sent_len, full_len = self._send_truncated_frame(response, cfg.truncate_bytes)
+            self.server.logger.warning(
+                "Modbus failure INJECTED dev=%d fc=0x03 (3) start=%s count=%s mode=TRUNCATED_FRAME groups=%s sent_bytes=%d/%d",
+                dev_id,
+                addr_str,
+                count_str,
+                ",".join(matched_groups) if matched_groups else "ALL",
+                sent_len,
+                full_len,
+            )
+            return
+
+        regs = list(getattr(response, "registers", []))
+        self.server.logger.info(
+            "Modbus request OK dev=%d fc=0x%02X (%d) start=%s count=%s outcome=OK",
+            dev_id,
+            fc,
+            fc,
+            addr_str,
+            count_str,
+        )
+        self.server.logger.debug(
+            "Modbus response raw words dev=%d fc=0x%02X start=%s count=%d hex=%s dec=%s",
+            dev_id,
+            fc,
+            addr_str,
+            len(regs),
+            [f"0x{w:04X}" for w in regs],
+            regs,
+        )
         self.server_send(response, self.last_addr)
 
 
@@ -670,6 +1013,7 @@ class SRNEModbusSerialServer(ModbusSerialServer):
         stopbits: int = DEFAULT_STOPBITS,
         timeout: float = DEFAULT_TIMEOUT,
         logger: logging.Logger | None = None,
+        failure_controller: FailureInjectionController | None = None,
     ) -> None:
         # Construct a minimal placeholder SimDevice so ModbusBaseServer initializes
         # cleanly without deprecated ModbusServerContext warnings, then replace self.context.
@@ -693,6 +1037,11 @@ class SRNEModbusSerialServer(ModbusSerialServer):
         self.srne_context = context
         self.device_id = context.device_id
         self.logger = logger or logging.getLogger(LOGGER_NAME)
+        self.failure_controller = (
+            failure_controller
+            if failure_controller is not None
+            else FailureInjectionController(context.groups, logger=self.logger)
+        )
 
     def callback_new_connection(self) -> SRNERequestHandler:
         """Instantiate our strict FC03-only RTU request handler."""
@@ -728,7 +1077,7 @@ def format_elapsed(seconds: float) -> str:
 
 
 class InteractiveConsoleController:
-    """Non-blocking interactive console controller for runtime scenario switching."""
+    """Non-blocking interactive console controller for scenarios and failure injection."""
 
     def __init__(
         self,
@@ -738,12 +1087,18 @@ class InteractiveConsoleController:
         logger: logging.Logger,
         output_stream: TextIO | None = None,
         shutdown_callback: Callable[[], None] | None = None,
+        failure_controller: FailureInjectionController | None = None,
     ) -> None:
         self.context = context
         self.port = port
         self.logger = logger
         self._out: TextIO = output_stream if output_stream is not None else sys.stdout
         self._shutdown_callback = shutdown_callback
+        self.failure_controller = (
+            failure_controller
+            if failure_controller is not None
+            else FailureInjectionController(context.groups, logger=logger)
+        )
 
     def _write(self, text: str) -> None:
         self._out.write(text + "\n")
@@ -758,7 +1113,17 @@ class InteractiveConsoleController:
             "  3 - S3_utility_zero_solar",
             "  4 - S4_standby",
             "  5 - S5_active_fault",
-            "  s - Display current simulator status",
+            "  s - Display current simulator status & failure counters",
+            "  n - Restore normal communication (clear failure injection)",
+            "  f - Show active failure configuration & counters (alias: f status)",
+            "  f list                 - List approved group IDs & aliases (bms, phase1, phase2, all)",
+            "  f normal               - Restore normal communication",
+            "  f timeout              - Inject complete silence on all FC03 requests",
+            "  f gtimeout <groups>    - Inject timeout only on selected groups (e.g. bms or P2-D04,P2-D05)",
+            "  f exc <groups> [code]  - Inject Modbus exception (default 0x02) on selected groups",
+            "  f crc [groups]         - Corrupt RTU CRC-16 globally or on selected groups",
+            "  f trunc [groups]       - Truncate encoded RTU frame globally or on selected groups",
+            "  f groups <groups>      - Update target groups on active selective/wire fault",
             "  h - Display available commands",
             "  q - Gracefully stop the simulator",
         ]
@@ -777,17 +1142,181 @@ class InteractiveConsoleController:
             f"Scenario Switch Count: {self.context.switch_count}",
             f"Elapsed Runtime      : {format_elapsed(self.context.elapsed_seconds)}",
             "Read-Only Policy     : FC03 ONLY (atomic per-response snapshot; no register mutation)",
-            "------------------------",
+            self.failure_controller.format_failure_status(),
         ]
         return "\n".join(lines)
 
+    def _handle_restore_normal(self) -> None:
+        prev_cfg, _ = self.failure_controller.restore_normal()
+        self.logger.info(
+            "Failure injection restored to normal (previous=%s, recoveries=%d)",
+            prev_cfg.mode.value,
+            self.failure_controller.counters.recoveries,
+        )
+        self._write(
+            f"Failure injection disabled: restored normal communication "
+            f"(previous={prev_cfg.mode.value}, recoveries={self.failure_controller.counters.recoveries})."
+        )
+
+    def _parse_exception_code_token(self, token: str) -> int | None:
+        """Parse an optional hex/decimal exception code token for `f exc`."""
+        stripped = token.strip()
+        if not stripped:
+            return None
+        if stripped.lower().startswith("0x") or stripped.isdigit():
+            try:
+                val = int(stripped, 0)
+            except ValueError as exc:
+                raise ValueError(f"Invalid exception code {token!r}") from exc
+            if val not in ALLOWED_INJECTED_EXCEPTION_CODES:
+                raise ValueError(
+                    f"Exception code 0x{val:02X} outside documented SRNE range 0x01..0x0B"
+                )
+            return val
+        return None
+
+    def _process_failure_command(self, tokens: list[str]) -> None:
+        """Handle `f ...` failure injection and diagnostics subcommands safely."""
+        if len(tokens) == 1 or tokens[1].lower() == "status":
+            self._write(self.failure_controller.format_failure_status())
+            return
+
+        sub = tokens[1].lower()
+        rest = tokens[2:]
+
+        try:
+            if sub == "list":
+                if rest:
+                    raise ValueError("'f list' takes no extra arguments")
+                self._write(self.failure_controller.format_group_list())
+                return
+
+            if sub == "normal":
+                if rest:
+                    raise ValueError("'f normal' takes no extra arguments")
+                self._handle_restore_normal()
+                return
+
+            if sub == "timeout":
+                if rest:
+                    raise ValueError("'f timeout' takes no target groups (use 'f gtimeout <groups>')")
+                prev_cfg, new_cfg = self.failure_controller.set_mode(FailureMode.SILENT_TIMEOUT)
+                self.logger.info(
+                    "Failure mode changed: %s -> %s (ALL FC03 silent)",
+                    prev_cfg.mode.value,
+                    new_cfg.mode.value,
+                )
+                self._write("Failure injection active: silent_timeout (all FC03 requests unanswered).")
+                return
+
+            if sub == "gtimeout":
+                target_groups = self.failure_controller.resolve_group_tokens(rest)
+                prev_cfg, new_cfg = self.failure_controller.set_mode(
+                    FailureMode.SELECTIVE_TIMEOUT, target_groups=target_groups
+                )
+                self.logger.info(
+                    "Failure mode changed: %s -> %s groups=%s",
+                    prev_cfg.mode.value,
+                    new_cfg.mode.value,
+                    ",".join(sorted(new_cfg.target_groups)),
+                )
+                self._write(
+                    f"Failure injection active: selective_timeout for {', '.join(sorted(new_cfg.target_groups))}."
+                )
+                return
+
+            if sub == "exc":
+                if not rest:
+                    raise ValueError("'f exc' requires <groups> [code], e.g. 'f exc P2-D05 0x02'")
+                exc_code = DEFAULT_INJECTED_EXCEPTION_CODE
+                group_tokens = rest
+                if len(rest) >= 2:
+                    parsed_code = self._parse_exception_code_token(rest[-1])
+                    if parsed_code is not None:
+                        exc_code = parsed_code
+                        group_tokens = rest[:-1]
+                target_groups = self.failure_controller.resolve_group_tokens(group_tokens)
+                prev_cfg, new_cfg = self.failure_controller.set_mode(
+                    FailureMode.SELECTIVE_EXCEPTION,
+                    target_groups=target_groups,
+                    exception_code=exc_code,
+                )
+                self.logger.info(
+                    "Failure mode changed: %s -> %s groups=%s exc=0x%02X",
+                    prev_cfg.mode.value,
+                    new_cfg.mode.value,
+                    ",".join(sorted(new_cfg.target_groups)),
+                    new_cfg.exception_code,
+                )
+                self._write(
+                    f"Failure injection active: selective_exception 0x{new_cfg.exception_code:02X} "
+                    f"for {', '.join(sorted(new_cfg.target_groups))}."
+                )
+                return
+
+            if sub == "crc":
+                target_groups = (
+                    self.failure_controller.resolve_group_tokens(rest) if rest else frozenset()
+                )
+                prev_cfg, new_cfg = self.failure_controller.set_mode(
+                    FailureMode.INVALID_CRC, target_groups=target_groups
+                )
+                scope = ", ".join(sorted(new_cfg.target_groups)) if new_cfg.target_groups else "ALL FC03 responses"
+                self.logger.info(
+                    "Failure mode changed: %s -> %s scope=%s",
+                    prev_cfg.mode.value,
+                    new_cfg.mode.value,
+                    scope,
+                )
+                self._write(f"Failure injection active: invalid_crc ({scope}).")
+                return
+
+            if sub == "trunc":
+                target_groups = (
+                    self.failure_controller.resolve_group_tokens(rest) if rest else frozenset()
+                )
+                prev_cfg, new_cfg = self.failure_controller.set_mode(
+                    FailureMode.TRUNCATED_FRAME, target_groups=target_groups
+                )
+                scope = ", ".join(sorted(new_cfg.target_groups)) if new_cfg.target_groups else "ALL FC03 responses"
+                self.logger.info(
+                    "Failure mode changed: %s -> %s scope=%s",
+                    prev_cfg.mode.value,
+                    new_cfg.mode.value,
+                    scope,
+                )
+                self._write(f"Failure injection active: truncated_frame ({scope}).")
+                return
+
+            if sub == "groups":
+                target_groups = self.failure_controller.resolve_group_tokens(rest)
+                prev_cfg, new_cfg = self.failure_controller.update_target_groups(target_groups)
+                self.logger.info(
+                    "Failure target groups updated for mode=%s: %s -> %s",
+                    new_cfg.mode.value,
+                    ",".join(sorted(prev_cfg.target_groups)) or "ALL",
+                    ",".join(sorted(new_cfg.target_groups)),
+                )
+                self._write(
+                    f"Updated target groups for {new_cfg.mode.value}: {', '.join(sorted(new_cfg.target_groups))}."
+                )
+                return
+
+            raise ValueError(f"Unknown failure subcommand {sub!r}")
+        except ValueError as exc:
+            self.logger.warning("Invalid failure command %r ignored: %s", " ".join(tokens), exc)
+            self._write(f"Invalid failure command: {exc}. Type 'h' for help.")
+
     def process_command(self, raw_line: str) -> bool:
         """Process one console line; return False only when simulator should stop."""
-        cmd = raw_line.strip().lower()
-        if not cmd:
+        stripped = raw_line.strip()
+        if not stripped:
             return True
 
-        if cmd in INTERACTIVE_SCENARIO_KEYS:
+        tokens = stripped.split()
+        cmd = tokens[0].lower()
+
+        if len(tokens) == 1 and cmd in INTERACTIVE_SCENARIO_KEYS:
             target_id = INTERACTIVE_SCENARIO_KEYS[cmd]
             changed, prev_sc, new_sc = self.context.switch_scenario(target_id)
             if changed:
@@ -812,23 +1341,31 @@ class InteractiveConsoleController:
                 )
             return True
 
-        if cmd == "s":
+        if len(tokens) == 1 and cmd == "s":
             self._write(self.format_status())
             return True
 
-        if cmd == "h":
+        if len(tokens) == 1 and cmd == "n":
+            self._handle_restore_normal()
+            return True
+
+        if cmd == "f":
+            self._process_failure_command(tokens)
+            return True
+
+        if len(tokens) == 1 and cmd == "h":
             self._write(self.format_help())
             return True
 
-        if cmd == "q":
+        if len(tokens) == 1 and cmd == "q":
             self.logger.info("Interactive quit command ('q') received; shutting down gracefully.")
             self._write("Graceful shutdown requested...")
             if self._shutdown_callback is not None:
                 self._shutdown_callback()
             return False
 
-        self.logger.warning("Invalid interactive console command ignored: %r", raw_line.strip())
-        self._write(f"Invalid command {raw_line.strip()!r}. Type 'h' for available commands.")
+        self.logger.warning("Invalid interactive console command ignored: %r", stripped)
+        self._write(f"Invalid command {stripped!r}. Type 'h' for available commands.")
         return True
 
     def _console_reader_worker(
@@ -947,10 +1484,11 @@ def format_startup_banner(
         f"Device Address   : {device_id} (0x{device_id:02X})",
         f"Register Coverage: {group_count} approved FC03 groups / {register_count} unique words / max {MAX_WORDS_PER_REQUEST} words/req",
         "Read-Only Policy : FC03 ONLY; writes (FC05/06/15/16/22/23) and other FCs return exception 0x01; gaps return 0x02",
+        "Failure Injection: OFF by default (normal communication)",
     ]
     if interactive:
         lines.append(
-            "Interactive Mode : ENABLED (keys 1-5 switch scenarios, s=status, h=help, q=quit; atomic per FC03 response)"
+            "Interactive Mode : ENABLED (keys 1-5 scenario, s=status, n=normal, f ...=failure mode, h=help, q=quit)"
         )
     lines.append("=" * 72)
     return "\n".join(lines)
@@ -1012,9 +1550,17 @@ async def run_server_async(
     interactive: bool = False,
     input_stream: TextIO | None = None,
     output_stream: TextIO | None = None,
+    failure_controller: FailureInjectionController | None = None,
 ) -> None:
     """Create and run the ModbusSerialServer with optional non-blocking interactive console."""
-    server = SRNEModbusSerialServer(context, port=port, logger=logger)
+    fc_ctl = (
+        failure_controller
+        if failure_controller is not None
+        else FailureInjectionController(context.groups, logger=logger)
+    )
+    server = SRNEModbusSerialServer(
+        context, port=port, logger=logger, failure_controller=fc_ctl
+    )
     if not interactive:
         try:
             await server.serve_forever()
@@ -1035,6 +1581,7 @@ async def run_server_async(
         logger=logger,
         output_stream=output_stream,
         shutdown_callback=_trigger_shutdown,
+        failure_controller=fc_ctl,
     )
     console_task = asyncio.create_task(
         controller.run(input_stream=input_stream, stop_event=stop_event),

@@ -704,5 +704,360 @@ class TestProtocolLevelRuntimeSwitchingRTU(unittest.IsolatedAsyncioTestCase):
             self.assertIn("--port is required", buf_err.getvalue())
 
 
+class TestFailureInjectionApplicationLevel(unittest.TestCase):
+    """Application-level tests for FailureInjectionController and console commands."""
+
+    def setUp(self) -> None:
+        self.fixtures = sim.load_and_validate_fixtures()
+        self.ctx = sim.SRNEReadOnlyContext(
+            self.fixtures.scenarios["S1_solar_charging"],
+            self.fixtures.groups,
+            scenarios=self.fixtures.scenarios,
+            started_at=0.0,
+        )
+        self.fc_ctl = sim.FailureInjectionController(self.fixtures.groups)
+
+    def test_default_normal_and_group_alias_resolution(self) -> None:
+        self.assertEqual(self.fc_ctl.config.mode, sim.FailureMode.NORMAL)
+        self.assertFalse(self.fc_ctl.is_active)
+        self.assertEqual(self.fc_ctl.counters.total_injected, 0)
+
+        self.assertEqual(self.fc_ctl.resolve_group_tokens("bms"), frozenset({"P2-D04", "P2-D05"}))
+        self.assertEqual(len(self.fc_ctl.resolve_group_tokens("phase1")), 16)
+        self.assertEqual(len(self.fc_ctl.resolve_group_tokens("phase2")), 24)
+        self.assertEqual(len(self.fc_ctl.resolve_group_tokens("phase2_dynamic")), 12)
+        self.assertEqual(len(self.fc_ctl.resolve_group_tokens("phase2_static")), 12)
+        self.assertEqual(len(self.fc_ctl.resolve_group_tokens("all")), 40)
+        self.assertEqual(
+            self.fc_ctl.resolve_group_tokens("p1-r01, p2-d05"),
+            frozenset({"P1-R01", "P2-D05"}),
+        )
+
+        with self.assertRaises(ValueError):
+            self.fc_ctl.resolve_group_tokens("P9-Z99")
+        with self.assertRaises(ValueError):
+            self.fc_ctl.resolve_group_tokens("")
+
+    def test_console_failure_commands_invalid_handling_and_independence(self) -> None:
+        out = io.StringIO()
+        ctrl = sim.InteractiveConsoleController(
+            self.ctx,
+            port="COM9",
+            logger=logging.getLogger(sim.LOGGER_NAME),
+            output_stream=out,
+            failure_controller=self.fc_ctl,
+        )
+
+        # Help and group list include all documented failure commands and aliases
+        self.assertTrue(ctrl.process_command("h"))
+        self.assertTrue(ctrl.process_command("f list"))
+        self.assertIn("f timeout", out.getvalue())
+        self.assertIn("f gtimeout <groups>", out.getvalue())
+        self.assertIn("P2-D05", out.getvalue())
+
+        # Invalid failure commands must not modify active scenario or failure mode
+        for bad_cmd in (
+            "f bogus",
+            "f gtimeout",
+            "f gtimeout P9-INVALID",
+            "f exc",
+            "f exc P2-D04 0x99",
+            "f crc P9-UNKNOWN",
+            "f groups P1-R01",
+            "f timeout extra",
+        ):
+            self.assertTrue(ctrl.process_command(bad_cmd))
+            self.assertEqual(self.fc_ctl.config.mode, sim.FailureMode.NORMAL)
+            self.assertEqual(self.ctx.scenario.scenario_id, "S1_solar_charging")
+
+        # Activate selective timeout, switch scenarios independently, then restore via n
+        self.assertTrue(ctrl.process_command("f gtimeout bms"))
+        self.assertEqual(self.fc_ctl.config.mode, sim.FailureMode.SELECTIVE_TIMEOUT)
+        self.assertEqual(self.fc_ctl.config.target_groups, frozenset({"P2-D04", "P2-D05"}))
+
+        self.assertTrue(ctrl.process_command("3"))
+        self.assertEqual(self.ctx.scenario.scenario_id, "S3_utility_zero_solar")
+        self.assertEqual(self.fc_ctl.config.mode, sim.FailureMode.SELECTIVE_TIMEOUT)
+
+        # Update target groups without changing scenario
+        self.assertTrue(ctrl.process_command("f groups P1-R01,P2-D05"))
+        self.assertEqual(self.fc_ctl.config.target_groups, frozenset({"P1-R01", "P2-D05"}))
+        self.assertEqual(self.ctx.scenario.scenario_id, "S3_utility_zero_solar")
+
+        self.assertTrue(ctrl.process_command("s"))
+        self.assertTrue(ctrl.process_command("n"))
+        self.assertEqual(self.fc_ctl.config.mode, sim.FailureMode.NORMAL)
+        self.assertEqual(self.fc_ctl.counters.recoveries, 1)
+        self.assertEqual(self.ctx.scenario.scenario_id, "S3_utility_zero_solar")
+        self.assertIn("Active Failure Mode  : selective_timeout", out.getvalue())
+
+
+class TestProtocolLevelFailureInjectionRTU(unittest.IsolatedAsyncioTestCase):
+    """Protocol-level RTU wire tests verifying silence, exceptions, CRC/truncation, recovery, and RO safety."""
+
+    def setUp(self) -> None:
+        self.fixtures = sim.load_and_validate_fixtures()
+
+    def _make_rig(
+        self, scenario_id: str = "S1_solar_charging"
+    ) -> tuple[
+        sim.SRNEReadOnlyContext,
+        sim.FailureInjectionController,
+        sim.InteractiveConsoleController,
+        sim.SRNEModbusSerialServer,
+        sim.SRNERequestHandler,
+        _InMemoryRTUTransport,
+        io.StringIO,
+        asyncio.Event,
+    ]:
+        ctx = sim.SRNEReadOnlyContext(
+            self.fixtures.scenarios[scenario_id],
+            self.fixtures.groups,
+            scenarios=self.fixtures.scenarios,
+            device_id=1,
+            started_at=0.0,
+        )
+        fc_ctl = sim.FailureInjectionController(self.fixtures.groups)
+        server = sim.SRNEModbusSerialServer(
+            ctx, port="NULLMODEM:0", timeout=1.0, failure_controller=fc_ctl
+        )
+        handler = server.callback_new_connection()
+        transport = _InMemoryRTUTransport(asyncio.get_running_loop())
+        handler.connection_made(transport)
+        out = io.StringIO()
+        quit_ev = asyncio.Event()
+        console = sim.InteractiveConsoleController(
+            ctx,
+            port="NULLMODEM:0",
+            logger=logging.getLogger(sim.LOGGER_NAME),
+            output_stream=out,
+            shutdown_callback=quit_ev.set,
+            failure_controller=fc_ctl,
+        )
+        return ctx, fc_ctl, console, server, handler, transport, out, quit_ev
+
+    async def _send_raw(
+        self, handler: sim.SRNERequestHandler, transport: _InMemoryRTUTransport, dev_id: int, pdu: bytes
+    ) -> bytes:
+        handler.data_received(build_rtu_frame(dev_id, pdu))
+        return await asyncio.wait_for(transport.written_frames.get(), timeout=1.0)
+
+    async def _assert_silent(
+        self, handler: sim.SRNERequestHandler, transport: _InMemoryRTUTransport, addr: int, count: int
+    ) -> None:
+        handler.data_received(build_rtu_frame(1, struct.pack(">BHH", 3, addr, count)))
+        await asyncio.sleep(0.05)
+        self.assertTrue(
+            transport.written_frames.empty(),
+            msg=f"Expected silence for 0x{addr:04X}+{count}, got bytes",
+        )
+
+    async def test_complete_silence_and_selective_bms_timeout_with_recovery(self) -> None:
+        ctx, fc_ctl, console, server, handler, transport, _, _ = self._make_rig("S1_solar_charging")
+        try:
+            # 1. Global silent timeout -> both Phase 1 and BMS silent
+            self.assertTrue(console.process_command("f timeout"))
+            await self._assert_silent(handler, transport, 0x0100, 4)  # P1-R01
+            await self._assert_silent(handler, transport, 0x0114, 4)  # P2-D05
+            self.assertEqual(fc_ctl.counters.silent_timeouts, 2)
+
+            # Recover without restart -> both succeed
+            self.assertTrue(console.process_command("n"))
+            dev, fc, p1_raw = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0100, 4))
+            )
+            self.assertEqual((dev, fc), (1, 3))
+            self.assertEqual(list(struct.unpack(">4H", p1_raw[1:])), list(ctx.scenario.group_payloads["P1-R01"]))
+
+            # 2. Selective BMS timeout -> P2-D04 and P2-D05 silent; P1-R01, P2-D01, P2-S06 unaffected
+            self.assertTrue(console.process_command("f gtimeout bms"))
+            await self._assert_silent(handler, transport, 0x0112, 1)  # P2-D04
+            await self._assert_silent(handler, transport, 0x0114, 4)  # P2-D05
+            self.assertEqual(fc_ctl.counters.selective_timeouts, 2)
+
+            for grp_id in ("P1-R01", "P2-D01", "P2-S06"):
+                spec = next(g for g in self.fixtures.groups if g.group_id == grp_id)
+                _, fc_ok, payload_ok = verify_and_unwrap_rtu_frame(
+                    await self._send_raw(
+                        handler, transport, 1, struct.pack(">BHH", 3, spec.start_address, spec.register_count)
+                    )
+                )
+                self.assertEqual(fc_ok, 3)
+                self.assertEqual(
+                    list(struct.unpack(f">{spec.register_count}H", payload_ok[1:])),
+                    list(ctx.scenario.group_payloads[grp_id]),
+                )
+
+            # Recover again -> P2-D05 succeeds immediately on same handler
+            self.assertTrue(console.process_command("f normal"))
+            _, fc_rec, p_rec = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0114, 4))
+            )
+            self.assertEqual(fc_rec, 3)
+            self.assertEqual(list(struct.unpack(">4H", p_rec[1:])), list(ctx.scenario.group_payloads["P2-D05"]))
+            self.assertEqual(fc_ctl.counters.recoveries, 2)
+        finally:
+            await server.shutdown()
+
+    async def test_selective_exception_invalid_crc_and_truncated_wire_frames(self) -> None:
+        from pymodbus.pdu import DecodePDU
+
+        ctx, fc_ctl, console, server, handler, transport, _, _ = self._make_rig("S1_solar_charging")
+        client_framer = FramerRTU(DecodePDU(is_server=False))
+        try:
+            # 1. Selective Modbus exception 0x02 and 0x04 on targeted groups only
+            self.assertTrue(console.process_command("f exc P2-D05 0x02"))
+            _, fc_e1, p_e1 = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0114, 4))
+            )
+            self.assertEqual((fc_e1, p_e1), (0x83, b"\x02"))
+
+            # Unaffected P1-R01 returns normal CRC-valid response
+            _, fc_u1, _ = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0100, 4))
+            )
+            self.assertEqual(fc_u1, 3)
+
+            self.assertTrue(console.process_command("f exc P1-R02 0x04"))
+            _, fc_e2, p_e2 = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0107, 3))
+            )
+            self.assertEqual((fc_e2, p_e2), (0x83, b"\x04"))
+
+            # 2. Wire-level INVALID_CRC (selective on P1-R01, then global)
+            self.assertTrue(console.process_command("f crc P1-R01"))
+            bad_crc_wire = await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0100, 4))
+            # Authentic length (1 + 1 + 1 + 8 + 2 = 13 bytes) and authentic payload, corrupted CRC
+            self.assertEqual(len(bad_crc_wire), 13)
+            self.assertEqual(bad_crc_wire[0:3], b"\x01\x03\x08")
+            self.assertEqual(
+                list(struct.unpack(">4H", bad_crc_wire[3:11])),
+                list(ctx.scenario.group_payloads["P1-R01"]),
+            )
+            self.assertFalse(FramerRTU.check_CRC(bad_crc_wire[:-2], (bad_crc_wire[-2] << 8) | bad_crc_wire[-1]))
+            _, client_pdu = client_framer.handleFrame(bad_crc_wire, 1, 0)
+            self.assertIsNone(client_pdu)
+
+            # Unaffected group P1-R02 passes valid CRC while selective CRC fault is on P1-R01
+            ok_crc_wire = await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0107, 3))
+            _, fc_ok, _ = verify_and_unwrap_rtu_frame(ok_crc_wire)
+            self.assertEqual(fc_ok, 3)
+
+            # 3. Wire-level TRUNCATED_FRAME (selective on P2-D05, then global)
+            self.assertTrue(console.process_command("f trunc P2-D05"))
+            trunc_wire = await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0114, 4))
+            # Normal 4-word FC03 RTU frame is 13 bytes; truncated by 3 => 10 bytes
+            self.assertEqual(len(trunc_wire), 10)
+            _, trunc_pdu = client_framer.handleFrame(trunc_wire, 1, 0)
+            self.assertIsNone(trunc_pdu)
+
+            # Restore normal communication without restart
+            self.assertTrue(console.process_command("n"))
+            good_wire = await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0114, 4))
+            self.assertEqual(len(good_wire), 13)
+            _, client_good_pdu = client_framer.handleFrame(good_wire, 1, 0)
+            self.assertIsNotNone(client_good_pdu)
+            self.assertEqual(fc_ctl.counters.selective_exceptions, 2)
+            self.assertEqual(fc_ctl.counters.invalid_crc_frames, 1)
+            self.assertEqual(fc_ctl.counters.truncated_frames, 1)
+            self.assertEqual(fc_ctl.counters.recoveries, 1)
+        finally:
+            await server.shutdown()
+
+    async def test_scenario_switching_and_readonly_safety_under_all_failure_modes(self) -> None:
+        ctx, fc_ctl, console, server, handler, transport, _, _ = self._make_rig("S1_solar_charging")
+        try:
+            # Activate selective BMS timeout, then switch scenario 1 -> 4 independently
+            self.assertTrue(console.process_command("f gtimeout bms"))
+            self.assertTrue(console.process_command("4"))
+            await self._assert_silent(handler, transport, 0x0112, 1)  # P2-D04 remains silent
+
+            # Unaffected P2-D10 reflects S4_standby (-2.5 degC => 0xFFE7 at 0x0223)
+            _, fc_d10, p_d10 = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0222, 3))
+            )
+            self.assertEqual(fc_d10, 3)
+            self.assertEqual(list(struct.unpack(">3H", p_d10[1:])), [48, 0xFFE7, 0])
+
+            # Restore normal -> P2-D04 returns S4_standby BMS voltage (54.0 V => 540)
+            self.assertTrue(console.process_command("n"))
+            _, fc_d04, p_d04 = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0112, 1))
+            )
+            self.assertEqual((fc_d04, list(struct.unpack(">H", p_d04[1:]))), (3, [540]))
+
+            # Verify FC03-only write rejection (0x01) holds across ALL 6 modes with zero mutation
+            mode_commands = [
+                ("n", sim.FailureMode.NORMAL),
+                ("f timeout", sim.FailureMode.SILENT_TIMEOUT),
+                ("f gtimeout bms", sim.FailureMode.SELECTIVE_TIMEOUT),
+                ("f exc bms 0x02", sim.FailureMode.SELECTIVE_EXCEPTION),
+                ("f crc", sim.FailureMode.INVALID_CRC),
+                ("f trunc", sim.FailureMode.TRUNCATED_FRAME),
+            ]
+            write_pdus = [
+                (0x06, struct.pack(">BHH", 6, 0xE003, 99)),
+                (0x10, struct.pack(">BHHBH", 16, 0x0100, 1, 2, 777)),
+                (0x16, struct.pack(">BHHH", 22, 0x0100, 0xFFFF, 0x0001)),
+                (0x17, struct.pack(">BHHHHBH", 23, 0x0100, 1, 0xE003, 1, 2, 99)),
+            ]
+            for cmd, expected_mode in mode_commands:
+                self.assertTrue(console.process_command(cmd))
+                self.assertEqual(fc_ctl.config.mode, expected_mode)
+                for req_fc, pdu in write_pdus:
+                    resp_dev, resp_fc, payload = verify_and_unwrap_rtu_frame(
+                        await self._send_raw(handler, transport, 1, pdu)
+                    )
+                    self.assertEqual((resp_dev, resp_fc, payload), (1, req_fc | 0x80, b"\x01"))
+
+            # Confirm zero register mutation after writes across all failure modes
+            self.assertTrue(console.process_command("n"))
+            _, _, p_e003 = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0xE003, 1))
+            )
+            self.assertEqual(p_e003, b"\x02\x00\x30")
+            self.assertEqual(ctx.registers[0x0100], 100)  # S4_standby SOC preserved
+        finally:
+            await server.shutdown()
+
+    async def test_concurrent_console_failure_lifecycle_counters_and_quit(self) -> None:
+        ctx, fc_ctl, console, server, handler, transport, out, quit_ev = self._make_rig("S1_solar_charging")
+        stream = _QueuedInputStream()
+        task = asyncio.create_task(console.run(input_stream=stream))
+        try:
+            stream.push("f exc P1-R01 0x03\n")
+            await asyncio.sleep(0.05)
+            _, fc_ex, p_ex = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0100, 4))
+            )
+            self.assertEqual((fc_ex, p_ex), (0x83, b"\x03"))
+
+            stream.push("2\n")
+            await asyncio.sleep(0.05)
+            stream.push("n\n")
+            await asyncio.sleep(0.05)
+            _, fc_ok, p_ok = verify_and_unwrap_rtu_frame(
+                await self._send_raw(handler, transport, 1, struct.pack(">BHH", 3, 0x0100, 4))
+            )
+            self.assertEqual(fc_ok, 3)
+            self.assertEqual(
+                list(struct.unpack(">4H", p_ok[1:])),
+                list(self.fixtures.scenarios["S2_battery_discharging"].group_payloads["P1-R01"]),
+            )
+
+            stream.push("f status\n")
+            stream.push("q\n")
+            await asyncio.wait_for(task, timeout=1.0)
+            self.assertTrue(quit_ev.is_set())
+            self.assertEqual(fc_ctl.counters.selective_exceptions, 1)
+            self.assertEqual(fc_ctl.counters.recoveries, 1)
+            self.assertIn("Active Failure Mode  : normal", out.getvalue())
+            self.assertIn("Restorations/Recover : 1", out.getvalue())
+        finally:
+            if not task.done():
+                task.cancel()
+            await server.shutdown()
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
