@@ -38,7 +38,7 @@
 
 ### Software Environment (`pip list --format=freeze` & `pip check`)
 
-- Executable: `f:\temp\SRNE-16KW-48V-Hybrid-Split-Phase\.venv-simulator\Scripts\python.exe`
+- Executable: `.venv-simulator\Scripts\python.exe`
 - `Python 3.14.3`
 - `pip==25.3`, `pymodbus==3.16.2`, `pyserial==3.5`
 - `python -m pip check`: `No broken requirements found.` (`exit=0`)

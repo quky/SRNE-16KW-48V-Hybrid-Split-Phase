@@ -19,13 +19,13 @@ Completed 2026-11-25 for owner review. This is a **documentation-only** audit id
 
 | Key | File | Scope / SHA-256 |
 |---|---|---|
-| P | [SRNE_Modbus_Monitoring_Protocol_V2.04_English.pdf](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/documentation/official/SRNE_Modbus_Monitoring_Protocol_V2.04_English.pdf) | Primary register authority (15 PDF pages)<br>`0c49c599a1a45c29bca0362241a8b460b308b07ad586561f943b3b25073e2f50` |
-| W | [SPI-16K-UP User Manual from srne weg page.pdf](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/documentation/official/SPI-16K-UP%20User%20Manual%20from%20srne%20weg%20page.pdf) | V00, 2025-12-16 (56 PDF pages; ASP datasheet labels)<br>`c688cab158750fd7883ccbe00a793896ee651456b4d35195d072f3932b94813c` |
-| S | [SPI-16K-UP User Manual V01 2026-05-08 form seller.pdf](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/documentation/official/SPI-16K-UP%20User%20Manual%20V01%202026-05-08%20form%20seller.pdf) | V01, 2026-05-08 (60 PDF pages; SPI-16K-UP datasheet labels)<br>`8e3fdd95171e0634b07e4751505895d7a0162001d4795171bdbec9a37d52dbf2` |
-| 01B-CSV | [SRNE-01B-Register-Inventory.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Register-Inventory.csv) | 1,011 inventory entries<br>`71ed75bdd2d1dd62c3487a57b685586705b1977967aed3b82e1a5d7d11f931aa` |
-| 01B-MD | [SRNE-01B-Audit-Summary.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Audit-Summary.md), [Communication-Specification](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Communication-Specification.md), [Monitoring-Coverage](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Monitoring-Coverage.md), [Write-Risk-Matrix](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Write-Risk-Matrix.md), [Ambiguities](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Ambiguities.md) | Protocol rules, A01–A25, M01–M10, write risk classifications |
-| 04A | [SRNE-04A-Phase1-Entity-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04A-Phase1-Entity-Mapping.csv), [SRNE-04A-Phase1-Mapping-Summary.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04A-Phase1-Mapping-Summary.md) | Phase 1 45-slot mapping (`5d219924...` / `34a009c1...`) |
-| FW | [srne-phase1-monitoring.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/packages/srne-phase1-monitoring.yaml), [srne-bench-test.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/srne-bench-test.yaml) | Read-only baseline inspection (`4fb4a88f...` / `30cb9a0d...`) |
+| P | `SRNE_Modbus_Monitoring_Protocol_V2.04_English.pdf` | Primary register authority (15 PDF pages)<br>`0c49c599a1a45c29bca0362241a8b460b308b07ad586561f943b3b25073e2f50` |
+| W | `SPI-16K-UP User Manual from srne weg page.pdf` | V00, 2025-12-16 (56 PDF pages; ASP datasheet labels)<br>`c688cab158750fd7883ccbe00a793896ee651456b4d35195d072f3932b94813c` |
+| S | `SPI-16K-UP User Manual V01 2026-05-08 form seller.pdf` | V01, 2026-05-08 (60 PDF pages; SPI-16K-UP datasheet labels)<br>`8e3fdd95171e0634b07e4751505895d7a0162001d4795171bdbec9a37d52dbf2` |
+| 01B-CSV | [SRNE-01B-Register-Inventory.csv](SRNE-01B-Register-Inventory.csv) | 1,011 inventory entries<br>`71ed75bdd2d1dd62c3487a57b685586705b1977967aed3b82e1a5d7d11f931aa` |
+| 01B-MD | [SRNE-01B-Audit-Summary.md](SRNE-01B-Audit-Summary.md), [Communication-Specification](SRNE-01B-Communication-Specification.md), [Monitoring-Coverage](SRNE-01B-Monitoring-Coverage.md), [Write-Risk-Matrix](SRNE-01B-Write-Risk-Matrix.md), [Ambiguities](SRNE-01B-Ambiguities.md) | Protocol rules, A01–A25, M01–M10, write risk classifications |
+| 04A | [SRNE-04A-Phase1-Entity-Mapping.csv](SRNE-04A-Phase1-Entity-Mapping.csv), [SRNE-04A-Phase1-Mapping-Summary.md](SRNE-04A-Phase1-Mapping-Summary.md) | Phase 1 45-slot mapping (`5d219924...` / `34a009c1...`) |
+| FW | [srne-phase1-monitoring.yaml](../esphome/packages/srne-phase1-monitoring.yaml), [srne-bench-test.yaml](../esphome/srne-bench-test.yaml) | Read-only baseline inspection (`4fb4a88f...` / `30cb9a0d...`) |
 
 - **Page references** use **1-based PDF page numbers** (`P PDF p9`–`p15`).
 - **Evidence definitions**: `DOCUMENTED` = explicitly printed in official sources; `INFERRED` = engineering derivation/applicability from official text; `UNVERIFIED` = missing definition, unresolved conflict, or untested hardware behavior.
@@ -52,7 +52,7 @@ Completed 2026-11-25 for owner review. This is a **documentation-only** audit id
 
 ## 1. Requested Anenji-Equivalent Candidates (18 Items)
 
-Every requested entity from the separate Anenji project was evaluated strictly against SRNE V2.04 without importing Anenji register addresses, scales, or enumerations. Full per-column specifications are in [SRNE-04F-Extended-Diagnostic-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04F-Extended-Diagnostic-Mapping.csv).
+Every requested entity from the separate Anenji project was evaluated strictly against SRNE V2.04 without importing Anenji register addresses, scales, or enumerations. Full per-column specifications are in [SRNE-04F-Extended-Diagnostic-Mapping.csv](SRNE-04F-Extended-Diagnostic-Mapping.csv).
 
 | # | Requested Concept | Classification | Proposed SRNE Entity / ID | Register (Hex / Dec) | Len | Perm / FC | Scale / Unit | PDF Ref | Phase 2 Decision |
 |---|---|---|---|---|---:|---|---|---|---|
@@ -87,7 +87,7 @@ Every requested entity from the separate Anenji project was evaluated strictly a
 
 ## 2. Additional SRNE-Specific Diagnostic Candidates (`S01`–`S49`)
 
-All 49 SRNE-specific candidates are itemized in [SRNE-04F-Extended-Diagnostic-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04F-Extended-Diagnostic-Mapping.csv) across the requested diagnostic domains:
+All 49 SRNE-specific candidates are itemized in [SRNE-04F-Extended-Diagnostic-Mapping.csv](SRNE-04F-Extended-Diagnostic-Mapping.csv) across the requested diagnostic domains:
 
 1. **Model Identification (3 `SUPPORTED`, 1 `AMBIGUOUS` held)**:
    - `RECOMMENDED`: `0x000B` Product Type (`S01`), `0x001A` Device RS485 Address (`S05`), `0x001B` Model Code (`S06`, raw integer; no lookup table in V2.04).
@@ -167,7 +167,7 @@ Phase 2 separates **dynamic operational diagnostics** (`30s`) from **static devi
 
 ## 4. Held Candidates & Physical Validation Requirements
 
-The **21 held (`AMBIGUOUS`) candidates** cluster into five unresolved areas from [SRNE-01B-Ambiguities.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Ambiguities.md):
+The **21 held (`AMBIGUOUS`) candidates** cluster into five unresolved areas from [SRNE-01B-Ambiguities.md](SRNE-01B-Ambiguities.md):
 - **Reserved / Unpopulated Words**: `0x000A` (`S04`), `0x0015` (`S03`), `0x0017` (`A08`) — probe via read-only bench tests to see if SPI-16K-UP populates them.
 - **Undocumented Bitmaps & Fault Radix (A21 / A25)**: `0x0118–0x011B` (`S19`–`S20`), `0x0200–0x0203` (`S21`), `0x0204–0x0207` (`S22`), `0x020B` (`S24`), `0xF800–0xF9FF` (`S23`) — require manufacturer bit maps and radix confirmation (`14` decimal vs `0x14` hex).
 - **Unsigned BMS Current (A04)**: `0x0113` (`S14`) — observe raw values during natural charging and discharging.
@@ -184,6 +184,6 @@ The **21 held (`AMBIGUOUS`) candidates** cluster into five unresolved areas from
 
 ## 5. Verification & Stop
 
-- Verified all 67 rows in [SRNE-04F-Extended-Diagnostic-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04F-Extended-Diagnostic-Mapping.csv) against [SRNE-01B-Register-Inventory.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-01B-Register-Inventory.csv), [SRNE-04A-Phase1-Entity-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04A-Phase1-Entity-Mapping.csv), and [srne-phase1-monitoring.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/packages/srne-phase1-monitoring.yaml).
+- Verified all 67 rows in [SRNE-04F-Extended-Diagnostic-Mapping.csv](SRNE-04F-Extended-Diagnostic-Mapping.csv) against [SRNE-01B-Register-Inventory.csv](SRNE-01B-Register-Inventory.csv), [SRNE-04A-Phase1-Entity-Mapping.csv](SRNE-04A-Phase1-Entity-Mapping.csv), and [srne-phase1-monitoring.yaml](../esphome/packages/srne-phase1-monitoring.yaml).
 - Confirmed zero gray-invalid rows in recommended entities, zero address overlap with Phase 1's 32 words, zero ESPHome ID collisions, contiguous FC03 groups `<= 32` words, and byte-identical preservation of all existing files.
 - **Stop after SRNE-04F for owner review.** No YAML, C++, firmware, HA, Anenji, or Git changes were performed.

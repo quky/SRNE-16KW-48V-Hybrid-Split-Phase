@@ -19,11 +19,11 @@ Completed 2026-11-25 for owner review. Implements all **37 approved Phase 2 read
 
 | File | Action | SHA-256 |
 |---|---|---|
-| [srne-bench-test.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/srne-bench-test.yaml) | Modified (2 additions: `srne_phase2_diagnostics` package include + `turnaround_time: 200ms`) | `8d0637b1443e60e0fde9d09963a527ebb4be184f51220b26a8389d8bbcdd2742` |
-| [srne-phase2-diagnostics.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/packages/srne-phase2-diagnostics.yaml) | Created (37 entities, 24 FC03 groups, 75 words) | `91ebba7848230ab1b19945d6dca71821f6fa040d1591069b04d2befc2f638b80` |
-| [srne-phase1-monitoring.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/packages/srne-phase1-monitoring.yaml) | **Preserved byte-for-byte** | `4fb4a88f47a051abd4621299ad31e7dc111ed903dd5bfa9b04d2befc2f638b80` |
-| [SRNE-04G-R1-Architecture-Correction.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04G-R1-Architecture-Correction.md) | Created | *(computed post-write; see verification output)* |
-| [SRNE-04G-Implementation-Summary.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04G-Implementation-Summary.md) | Created | *(this file)* |
+| [srne-bench-test.yaml](../esphome/srne-bench-test.yaml) | Modified (2 additions: `srne_phase2_diagnostics` package include + `turnaround_time: 200ms`) | `8d0637b1443e60e0fde9d09963a527ebb4be184f51220b26a8389d8bbcdd2742` |
+| [srne-phase2-diagnostics.yaml](../esphome/packages/srne-phase2-diagnostics.yaml) | Created (37 entities, 24 FC03 groups, 75 words) | `91ebba7848230ab1b19945d6dca71821f6fa040d1591069b04d2befc2f638b80` |
+| [srne-phase1-monitoring.yaml](../esphome/packages/srne-phase1-monitoring.yaml) | **Preserved byte-for-byte** | `4fb4a88f47a051abd4621299ad31e7dc111ed903dd5bfa9b04d2befc2f638b80` |
+| [SRNE-04G-R1-Architecture-Correction.md](SRNE-04G-R1-Architecture-Correction.md) | Created | *(computed post-write; see verification output)* |
+| [SRNE-04G-Implementation-Summary.md](SRNE-04G-Implementation-Summary.md) | Created | *(this file)* |
 
 All UART (`GPIO17`/`GPIO18`, `9600,N,8,1`), `flow_control_pin: GPIO21`, `send_wait_time: 300ms`, Wi-Fi, API encryption, OTA, logger, and `srne_uptime` configurations were preserved unchanged. No credentials were accessed or exposed.
 
@@ -37,7 +37,7 @@ All UART (`GPIO17`/`GPIO18`, `9600,N,8,1`), `flow_control_pin: GPIO21`, `send_wa
 | **Phase 2 (New, `entity_category: diagnostic`)** | 26 | 0 | 11 | **37** |
 | **Combined Total** | **59** | **2** | **12** | **73** |
 
-- All 37 Phase 2 entities use descriptive SRNE-specific names matching [SRNE-04F-Extended-Diagnostic-Mapping.csv](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04F-Extended-Diagnostic-Mapping.csv).
+- All 37 Phase 2 entities use descriptive SRNE-specific names matching [SRNE-04F-Extended-Diagnostic-Mapping.csv](SRNE-04F-Extended-Diagnostic-Mapping.csv).
 - Runtime/cumulative counters (`srne_battery_cycle_count`, `srne_inverter_operating_time_today`, `srne_bypass_operating_time_today`, `srne_total_operating_days`, `srne_cumulative_inverter_operating_time`, `srne_cumulative_bypass_operating_time`) and static config values (`srne_device_address`, `srne_model_code`, `srne_battery_rated_voltage`) retain `state_class: ""` until physical reset/persistence validation is completed.
 - All 21 held candidates, 7 unsupported candidates, `0xDF00`/`0xDF01` controls, `0x0221` (already in Phase 1), and all gray-invalid registers are excluded.
 
@@ -91,7 +91,7 @@ All UART (`GPIO17`/`GPIO18`, `9600,N,8,1`), `flow_control_pin: GPIO21`, `send_wa
 - **Recalculated bus utilization (`turnaround_time = 200ms`, `9600,N,8,1`)**:
   - At `T_resp = 50ms`: Phase 1 (`16` reqs/`10s`) = `4.34 s` (**43.4%**, `5.66 s` quiet window); combined Phase 1 + Phase 2 Dynamic (`60` reqs/`30s`) = `16.28 s` (**54.3%**); 1-hour average = **54.4%**.
   - Missing 3 optional BMS groups (`D01`, `D04`, `D05`): initial timeout window `57.7%`, dropping to `51.8%` steady-state under `300s` exception/timeout backoff.
-  - Detailed breakdown across all 6 worst-case scenarios is in [SRNE-04G-R1-Architecture-Correction.md](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/audits/SRNE-04G-R1-Architecture-Correction.md).
+  - Detailed breakdown across all 6 worst-case scenarios is in [SRNE-04G-R1-Architecture-Correction.md](SRNE-04G-R1-Architecture-Correction.md).
 - **Per-group failure & freshness isolation**:
   - `on_response` verifies `values.size() == srne_p2_expected_count`; `on_custom_response`, `on_error`, `on_no_response` (`retry: false`), `on_not_sent`, and the `2000ms` in-flight watchdog route to `srne_p2_handle_failure`.
   - Only the affected group is invalidated (`NAN` for numeric sensors, `"Unavailable"` for text sensors), guarded by `srne_p2_invalid_pub[g]` to avoid repeated identical invalid publications.
@@ -110,6 +110,6 @@ All UART (`GPIO17`/`GPIO18`, `9600,N,8,1`), `flow_control_pin: GPIO21`, `send_wa
 ## 6. Confirmation of Zero Writable Inverter Controls
 
 - Protocol function code used exclusively: **FC03** (`modbus_client.read_holding_registers`).
-- Static inspection confirms **zero** `write_single_register`, `write_multiple_registers`, `write_single_coil`, `write_multiple_coils`, `read_write_multiple_registers`, `custom_pdu` writes, `switch`, `number`, `select`, `button`, or `output` entities in [srne-phase2-diagnostics.yaml](file:///f:/temp/SRNE-16KW-48V-Hybrid-Split-Phase/esphome/packages/srne-phase2-diagnostics.yaml).
+- Static inspection confirms **zero** `write_single_register`, `write_multiple_registers`, `write_single_coil`, `write_multiple_coils`, `read_write_multiple_registers`, `custom_pdu` writes, `switch`, `number`, `select`, `button`, or `output` entities in [srne-phase2-diagnostics.yaml](../esphome/packages/srne-phase2-diagnostics.yaml).
 
 Stop for owner review after SRNE-04G / SRNE-04G-R1.
